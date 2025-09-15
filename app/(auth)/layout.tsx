@@ -1,3 +1,6 @@
+import AuthNavbar from "./auth-navbar";
+
+
 
 
 export default function AuthLayout({
@@ -7,9 +10,9 @@ export default function AuthLayout({
 }>) {
     return (
         <div className="w-full min-h-screen flex flex-col">
+            <AuthNavbar />
 
-
-            <div className="flex flex-col">{children}</div>
+            <div>{children}</div>
         </div>
     );
 }
