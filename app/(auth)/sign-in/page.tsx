@@ -31,7 +31,7 @@ const Page = () => {
                         <a href="#" className="text-secondary-foreground hover:underline">
                             Terms & Conditions
                         </a>{" "}
-                        and
+                        and{" "}
                         <a href="#" className="text-secondary-foreground hover:underline">
                             Privacy Policy.
                         </a>
