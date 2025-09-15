@@ -5,12 +5,12 @@ const AuthNavbar = () => {
     return (
         <nav className="flex items-center justify-start p-2">
             <div className="ml-4 flex lg:ml-0">
-                <Link href="/" className="block w-[180px] h-[60px] relative">
+                <Link href="/" className="block w-[180px] h-[36px] relative">
                     <Image
                         src="/hanoled_logo.jpg"
                         alt="Hanoled Logo"
-                        priority
                         fill
+                        priority
                         sizes="180px"
                         className="object-contain"
                     />
