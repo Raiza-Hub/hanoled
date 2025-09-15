@@ -4,7 +4,7 @@ import SignUpForm from "@/components/auth-form/signup-form";
 
 const Page = () => {
     return (
-        <div className="flex pt-20 flex-col items-center justify-center lg:px-0">
+        <main className="flex pt-20 flex-col items-center justify-center lg:px-0">
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:max-w-sm">
                 <div className="flex flex-col justify-center space-y-2">
                     <h1 className="text-3xl font-semibold tracking-tight">Get started</h1>
@@ -37,7 +37,7 @@ const Page = () => {
                     </p>
                 </div>
             </div>
-        </div>
+        </main>
     );
 };
 
