@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const AuthNavbar = () => {
     return (
-        <nav className="flex items-center justify-start p-5">
+        <nav className="flex items-center justify-start p-5 ">
             <div className="ml-4 flex lg:ml-0">
                 <Link href="/">
                     <Image
