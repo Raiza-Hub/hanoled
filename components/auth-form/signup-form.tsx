@@ -128,7 +128,8 @@ const SignUpForm = () => {
                             variant="outline"
                             className="w-full cursor-pointer"
                             disabled={isPending}
-                            onClick={handleSignInWithGoogle}
+                            onClick={handleSignInWithMicrosoft}
+
                         >
                             <Icons.microsoft className="h-5 w-5" />
                             Continue with Microsoft
