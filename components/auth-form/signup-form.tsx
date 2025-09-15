@@ -88,9 +88,17 @@ const SignUpForm = () => {
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? (
-                                    <EyeOff className="h-4 w-4 text-gray-500" />
+                                    <EyeOff
+                                        className="h-4 w-4 text-gray-500"
+                                        aria-hidden="true"
+                                        focusable="false"
+                                    />
                                 ) : (
-                                    <Eye className="h-4 w-4 text-gray-500" />
+                                    <Eye
+                                        className="h-4 w-4 text-gray-500"
+                                        aria-hidden="true"
+                                        focusable="false"
+                                    />
                                 )}
                             </Button>
                         </div>
