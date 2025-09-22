@@ -11,10 +11,14 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { TSignUp, SignUp } from "@/lib/validators/auth";
 import { Icons } from "../icons";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const SignUpForm = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [isPending, setIsPending] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState(false);
+
+    const router = useRouter()
 
     const {
         register,
@@ -26,16 +30,49 @@ const SignUpForm = () => {
 
 
     const handleSignInWithGoogle = async () => {
-        // sign-up using gmail
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard",
+        });
     };
 
     const handleSignInWithMicrosoft = async () => {
-        // sign-up using microsoft
+        await authClient.signIn.social({
+            provider: "microsoft",
+            callbackURL: "/dashboard",
+        });
     };
 
-    const onSubmit = ({ name, email, password }: TSignUp) => {
-        // sign-up using form fields
+    const onSubmit = async({ name, email, password }: TSignUp) => {
+        setIsLoading(true);
+
+        try {
+            // 2. Use the authClient method for email sign-up
+            // The client automatically knows the full URL and how to structure the request.
+            const {data: success, error } = await authClient.signUp.email({
+                name,
+                email,
+                password,
+               
+            });
+
+            // Handle success
+            if (success) {
+                toast.success(`Please check your email for verification.`);
+                router.push("/sign-in");
+            } else {
+                toast.error(`${error}`);
+            }
+
+        } catch (err) {
+            // The auth client will throw structured errors
+            toast('Something went wrong.');
+            console.error('Sign-up error:', err);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
 
     return (
         <div className="grid gap-6">
@@ -117,7 +154,7 @@ const SignUpForm = () => {
                         <Button
                             variant="outline"
                             className="w-full cursor-pointer"
-                            disabled={isPending}
+                            disabled={isLoading}
                             onClick={handleSignInWithGoogle}
                         >
                             <Icons.google className="h-5 w-5" />
@@ -127,7 +164,7 @@ const SignUpForm = () => {
                         <Button
                             variant="outline"
                             className="w-full cursor-pointer"
-                            disabled={isPending}
+                            disabled={isLoading}
                             onClick={handleSignInWithMicrosoft}
 
                         >
@@ -136,8 +173,8 @@ const SignUpForm = () => {
                         </Button>
                     </div>
 
-                    <Button className="cursor-pointer" disabled={isPending}>
-                        {isPending ? (
+                    <Button className="cursor-pointer" disabled={isLoading}>
+                        {isLoading ? (
                             <Loader2 className="size-4 animate-spin" />
                         ) : (
                             "Sign up"
@@ -147,6 +184,6 @@ const SignUpForm = () => {
             </form>
         </div>
     );
-};
+}
 
 export default SignUpForm;
