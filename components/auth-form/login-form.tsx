@@ -11,9 +11,15 @@ import { useForm } from "react-hook-form";
 import { Icons } from "../icons";
 import { TSignIn, SignIn } from "@/lib/validators/auth";
 import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
 
 const LoginForm = () => {
-    const [isPending, setIsPending] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const router = useRouter()
 
     const {
         register,
@@ -24,15 +30,43 @@ const LoginForm = () => {
     });
 
     const handleSignInWithGoogle = async () => {
-        // sign-up using gmail
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard",
+        });
     };
 
     const handleSignInWithMicrosoft = async () => {
-        // sign-up using microsoft
+        await authClient.signIn.social({
+            provider: "microsoft",
+            callbackURL: "/dashboard",
+        });
     };
 
-    const onSubmit = ({ email, password }: TSignIn) => {
-        // sign-up using form fields
+    const onSubmit = async ({ email, password }: TSignIn) => {
+        setIsLoading(true);
+
+        try {
+            const { data: success, error } = await authClient.signIn.email({
+                email,
+                password,
+            });
+
+            // Handle success
+            if (success) {
+                router.push("/dashboard");
+            } else {
+                toast.error(error.message || "Login failed");
+                console.log("Login error:", error);
+            }
+
+        } catch (err) {
+            // The auth client will throw structured errors
+            toast.error('Something went wrong.');
+            console.error('Sign-in error:', err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -83,7 +117,7 @@ const LoginForm = () => {
                         <Button
                             variant="outline"
                             className="w-full cursor-pointer"
-                            disabled={isPending}
+                            disabled={isLoading}
                             onClick={handleSignInWithGoogle}
                         >
                             <Icons.google className="h-5 w-5" />
@@ -93,7 +127,7 @@ const LoginForm = () => {
                         <Button
                             variant="outline"
                             className="w-full cursor-pointer"
-                            disabled={isPending}
+                            disabled={isLoading}
                             onClick={handleSignInWithMicrosoft}
 
                         >
@@ -102,8 +136,8 @@ const LoginForm = () => {
                         </Button>
                     </div>
 
-                    <Button className="cursor-pointer" disabled={isPending}>
-                        {isPending ? (
+                    <Button className="cursor-pointer" disabled={isLoading}>
+                        {isLoading ? (
                             <Loader2 className="size-4 animate-spin" />
                         ) : (
                             "Sign in"
