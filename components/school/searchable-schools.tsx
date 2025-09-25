@@ -11,7 +11,7 @@ import SchoolsSkeleton from "./school-skeleton";
 import { SchoolsResponse } from "@/type";
 import { NoResultsFound } from "../no-result";
 
-export async function getAllSchools(): Promise<SchoolsResponse>  {
+export async function getAllSchools(): Promise<SchoolsResponse> {
     const res = await fetch("/api/schools");
 
     if (!res.ok) {
@@ -22,9 +22,16 @@ export async function getAllSchools(): Promise<SchoolsResponse>  {
 
     return {
         ...data,
-        message: data.message.map((school: any) => ({
+        message: data.message.map((school: { metadata?: string;[key: string]: unknown }) => ({
             ...school,
-            metadata: school.metadata ? JSON.parse(school.metadata) : {},
+            metadata: school.metadata ? (() => {
+                try {
+                    return JSON.parse(school.metadata);
+                } catch {
+                    console.warn(`Invalid JSON in school metadata for school:`, school);
+                    return {};
+                }
+            })() : {},
         })),
     };
 }
@@ -39,10 +46,8 @@ export default function SearchableSchools() {
         queryFn: getAllSchools
     })
 
-    console.log("data", schools);
 
 
-    
 
     // Filter organizations based on search query
     const filteredOrganizations = useMemo(() => {
