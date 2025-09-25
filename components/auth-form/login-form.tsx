@@ -30,17 +30,33 @@ const LoginForm = () => {
     });
 
     const handleSignInWithGoogle = async () => {
-        await authClient.signIn.social({
-            provider: "google",
-            callbackURL: "/dashboard",
-        });
+        setIsLoading(true);
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/dashboard",
+            });
+        } catch (error) {
+            toast.error("Google sign-in failed. Please try again.");
+            console.error("Google sign-in error:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSignInWithMicrosoft = async () => {
-        await authClient.signIn.social({
-            provider: "microsoft",
-            callbackURL: "/dashboard",
-        });
+        setIsLoading(true);
+        try {
+            await authClient.signIn.social({
+                provider: "microsoft",
+                callbackURL: "/dashboard",
+            });
+        } catch (error) {
+            toast.error("Microsoft sign-in failed. Please try again.");
+            console.error("Microsoft sign-in error:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const onSubmit = async ({ email, password }: TSignIn) => {

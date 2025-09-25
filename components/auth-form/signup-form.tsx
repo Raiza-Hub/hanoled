@@ -30,30 +30,46 @@ const SignUpForm = () => {
 
 
     const handleSignInWithGoogle = async () => {
-        await authClient.signIn.social({
-            provider: "google",
-            callbackURL: "/dashboard",
-        });
+        setIsLoading(true);
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/dashboard",
+            });
+        } catch (error) {
+            toast.error("Failed to sign in with Google. Please try again.");
+            console.error("Google sign-in error:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSignInWithMicrosoft = async () => {
-        await authClient.signIn.social({
-            provider: "microsoft",
-            callbackURL: "/dashboard",
-        });
+        setIsLoading(true);
+        try {
+            await authClient.signIn.social({
+                provider: "microsoft",
+                callbackURL: "/dashboard",
+            });
+        } catch (error) {
+            toast.error("Failed to sign in with Microsoft. Please try again.");
+            console.error("Microsoft sign-in error:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const onSubmit = async({ name, email, password }: TSignUp) => {
+    const onSubmit = async ({ name, email, password }: TSignUp) => {
         setIsLoading(true);
 
         try {
             // 2. Use the authClient method for email sign-up
             // The client automatically knows the full URL and how to structure the request.
-            const {data: success, error } = await authClient.signUp.email({
+            const { data: success, error } = await authClient.signUp.email({
                 name,
                 email,
                 password,
-               
+
             });
 
             // Handle success
@@ -61,12 +77,12 @@ const SignUpForm = () => {
                 toast.success(`Please check your email for verification.`);
                 router.push("/sign-in");
             } else {
-                toast.error(`${error}`);
+                toast.error(error?.message || "Failed to create account. Please try again.");
             }
 
         } catch (err) {
             // The auth client will throw structured errors
-            toast('Something went wrong.');
+            toast('Something went wrong. Please try again.');
             console.error('Sign-up error:', err);
         } finally {
             setIsLoading(false);
