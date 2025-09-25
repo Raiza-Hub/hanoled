@@ -1,9 +1,11 @@
 const SchoolsSkeleton = () => {
     return (
         <div>
-            <div className="flex items-center justify-between mb-4">
-                <div className="h-8 bg-accent animate-pulse w-[320px] rounded-md" />
-                <div className="h-8 bg-accent animate-pulse w-[150px] rounded-md" />
+            <div className="flex items-center flex-col-reverse md:flex-row mb-4">
+                <div className="h-8 bg-accent animate-pulse w-full md:w-[380px] rounded-md" />
+                <div className="w-full flex justify-end mb-3 md:mb-0">
+                    <div className="h-8 bg-accent animate-pulse w-[120px] rounded-md" />
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
