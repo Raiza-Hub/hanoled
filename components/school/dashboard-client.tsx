@@ -1,10 +1,11 @@
 "use client";
 
+import { getSchool } from "@/lib/api";
 import { SchoolResponse } from "@/type";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export function mapRoleToPath(role: string) {
     switch (role) {
@@ -26,38 +27,6 @@ interface DashboardClientProps {
 }
 
 
-export async function getSchool(slug: string): Promise<SchoolResponse> {
-    const res = await fetch(`/api/school/${slug}`);
-
-    if (!res.ok) {
-        throw new Error("Failed to fetch schools");
-    }
-
-    const data = await res.json();
-    console.log(data);
-    
-
-    return {
-        ...data,
-        message: data.message
-            ? (() => {
-                try {
-                    return {
-                        ...data.message,
-                        metadata: data.message.metadata
-                            ? JSON.parse(data.message.metadata)
-                            : {},
-                    };
-                } catch {
-                    console.warn(
-                        `Invalid JSON in organization metadata for slug: ${slug}`,
-                    );
-                    return { ...data.message, metadata: {} };
-                }
-            })() : {}
-    };
-}
-
 
 export default function DashboardClient({
     slug,
@@ -70,31 +39,30 @@ export default function DashboardClient({
         queryFn: () => getSchool(slug)
     })
 
+    const redirectTarget = useMemo(() => {
+        if (!school?.roles) return null;
+
+        if (school.roles.length === 0) {
+            return "/unauthorized";
+        }
+
+        if (school.roles.length === 1) {
+            return `/dashboard/school/${slug}/${mapRoleToPath(school.roles[0])}`;
+        }
+        if (school.roles.length > 1) {
+            return `/dashboard/school/${slug}/choose-role`;
+        }
+
+        return null;
+    }, [school?.roles, slug]);
+
     useEffect(() => {
-        if (!school?.roles) return;
+        if (!redirectTarget) return;
+        router.replace(redirectTarget);
+    }, [redirectTarget, router]);
 
-        if (school?.roles.length === 0) {
-            router.replace("/unauthorized");
-            return;
-        }
 
-        // Single role → redirect to correct dashboard path
-        if (school?.roles.length === 1) {
-            const targetPath = mapRoleToPath(school?.roles[0]);
-            router.replace(`/dashboard/school/${slug}/${targetPath}`);
-            return;
-        }
-
-        // Multiple roles → choose role page
-        if ((school?.roles?.length ?? 0) > 1) {
-            router.replace(`/dashboard/school/${slug}/choose-role`);
-            return;
-        }
-    }, [
-        school, slug,
-    ]);
-
-    if (isLoading) {
+    if (redirectTarget || isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <LoaderCircle className="animate-spin h-6 w-6" />
@@ -114,6 +82,6 @@ export default function DashboardClient({
             </div>
         );
     }
-
+    
     return <>{children}</>;
 }
