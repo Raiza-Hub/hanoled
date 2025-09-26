@@ -6,10 +6,10 @@ export default async function SchoolDashboardPage({
     params,
 }: {
     children: ReactNode;
-        params: Promise<{ slug: string; }>;
+    params: Promise<{ slug: string; }>;
 }) {
     const { slug } = await params;
-
+    
     return (
         <DashboardClient slug={slug}>
             {children}
