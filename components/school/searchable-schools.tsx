@@ -10,31 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import SchoolsSkeleton from "./school-skeleton";
 import { SchoolsResponse } from "@/type";
 import { NoResultsFound } from "../no-result";
+import { getAllSchools } from "@/lib/api";
 
-export async function getAllSchools(): Promise<SchoolsResponse> {
-    const res = await fetch("/api/schools");
-
-    if (!res.ok) {
-        throw new Error("Failed to fetch schools");
-    }
-
-    const data = await res.json();
-
-    return {
-        ...data,
-        message: data.message.map((school: { metadata?: string;[key: string]: unknown }) => ({
-            ...school,
-            metadata: school.metadata ? (() => {
-                try {
-                    return JSON.parse(school.metadata);
-                } catch {
-                    console.warn(`Invalid JSON in school metadata for school:`, school);
-                    return {};
-                }
-            })() : {},
-        })),
-    };
-}
 
 // Make the URL show what inside the searchbox and maybe add a badge icon to show the country
 
@@ -45,9 +22,6 @@ export default function SearchableSchools() {
         queryKey: ['schools'],
         queryFn: getAllSchools
     })
-
-
-
 
     // Filter organizations based on search query
     const filteredOrganizations = useMemo(() => {
