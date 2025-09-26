@@ -1,16 +1,16 @@
+import { SchoolMessage } from "@/type";
 import { create } from "zustand";
-import { School } from "../../type";
 
 interface CurrentSchoolActions {
-  setCurrentSchool: (school: School) => void;
+  setCurrentSchool: (school: SchoolMessage) => void;
 }
 
 interface SchoolState {
-  currentSchool: School | null;
+  currentSchool: SchoolMessage | null;
   action: CurrentSchoolActions;
 }
 
-export const useOrganizationStore = create<SchoolState>()((set) => ({
+export const useSchoolStore = create<SchoolState>()((set) => ({
   currentSchool: null,
   action: {
     setCurrentSchool: (school) => set({ currentSchool: school }),
@@ -18,7 +18,7 @@ export const useOrganizationStore = create<SchoolState>()((set) => ({
 }));
 
 export const useCurrentSchool = () =>
-  useOrganizationStore((state) => state.currentSchool);
+  useSchoolStore((state) => state.currentSchool);
 
 export const useCurrentSchoolActions = () =>
-  useOrganizationStore((state) => state.action);
+  useSchoolStore((state) => state.action);
