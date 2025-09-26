@@ -8,7 +8,8 @@ export const env = createEnv({
    */
   server: {
     BETTER_AUTH_URL: z.string(),
-    CLOUDINARY_SECRET_KEY: z.string()
+    CLOUDINARY_SECRET_KEY: z.string(),
+    SERVER_URL: z.url()
   },
   /*
    * Environment variables available on the client (and server).
@@ -36,7 +37,8 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     NEXT_PUBLIC_CLOUDINARY_API_KEY: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    CLOUDINARY_SECRET_KEY: process.env.CLOUDINARY_SECRET_KEY
+    CLOUDINARY_SECRET_KEY: process.env.CLOUDINARY_SECRET_KEY,
+    SERVER_URL: process.env.SERVER_URL
   },
   // experimental__runtimeEnv: {
   //   NEXT_PUBLIC_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_PUBLISHABLE_KEY,
