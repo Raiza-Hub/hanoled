@@ -1,6 +1,7 @@
 const SchoolsSkeleton = () => {
     return (
-        <div>
+        <div role="status" aria-live="polite" aria-busy="true">
+            <span className="sr-only">Loading schools…</span>
             <div className="flex items-center flex-col-reverse md:flex-row mb-4">
                 <div className="h-8 bg-accent animate-pulse w-full md:w-[380px] rounded-md" />
                 <div className="w-full flex justify-end mb-3 md:mb-0">
