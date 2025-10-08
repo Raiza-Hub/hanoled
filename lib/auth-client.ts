@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { organizationClient } from "better-auth/client/plugins";
+import { multiSessionClient, organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
@@ -8,5 +8,5 @@ export const authClient = createAuthClient({
     credentials: "include",
   },
 
-  plugins: [organizationClient()],
+  plugins: [organizationClient(), multiSessionClient()],
 });
