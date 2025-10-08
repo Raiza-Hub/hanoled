@@ -18,7 +18,7 @@ import { getAllSchools } from "@/lib/api";
 export default function SearchableSchools() {
     const [searchQuery, setSearchQuery] = useState("");
 
-    const { data: schools, isLoading } = useQuery({
+    const { data: schools, isLoading, isError, error } = useQuery({
         queryKey: ['schools'],
         queryFn: getAllSchools
     })
@@ -40,6 +40,16 @@ export default function SearchableSchools() {
     if (isLoading) {
         return <SchoolsSkeleton />;
     }
+
+    if (isError) {
+        return (
+            <div role="alert" className="flex flex-col items-center justify-center py-10 px-6 border rounded-md bg-accent">
+                <h2 className="font-medium text-foreground mb-2">We couldn’t load schools</h2>
+                <p className="text-sm text-muted-foreground">{error?.message ?? 'Please try again later.'}</p>
+            </div>
+        );
+    }
+
 
     return (
         <>
