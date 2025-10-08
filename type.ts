@@ -56,3 +56,7 @@ export interface SchoolResponse {
   message: School;
   roles: string[];
 }
+
+export type ValidatePasswordResponse = {
+  success: boolean;
+};
