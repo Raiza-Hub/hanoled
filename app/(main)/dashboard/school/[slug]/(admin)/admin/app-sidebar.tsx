@@ -26,76 +26,79 @@ import {
     Users
 } from "lucide-react";
 
-const data = {
-    navMain: [
-        {
-            title: "School overview",
-            url: "/dashboard",
-            isActive: true,
-            icon: House
-        },
-        {
-            title: "Teacher management",
-            url: "#",
-            icon: UserCog
-        },
-        {
-            title: "Student management",
-            url: "#",
-            icon: UserPen
-        },
-        {
-            title: "Parent management",
-            url: "#",
-            icon: Users
-        },
-        {
-            title: "Report",
-            url: "#",
-            icon: FileClock
-        },
-        {
-            title: "All subject",
-            url: "#",
-            icon: FolderTree
-        },
-    ],
-    navSecondary: [
-        {
-            title: "Settings",
-            url: "#",
-            icon: Settings,
-        },
-        {
-            title: "Feedback",
-            url: "#",
-            icon: MessageCircle,
-        },
-        {
-            title: "Get Help",
-            url: "#",
-            icon: HelpCircle,
-            items: [
-                {
-                    title: "Docs",
-                    url: "#",
-                    icon: BookOpen
-                },
-                {
-                    title: "Contact Support",
-                    url: "#",
-                    icon: Mail
-                },
-            ],
-        },
-    ],
-};
+
 
 export function AppSidebar({
     slug,
 }: {
     slug: string;
 }) {
+
+    const data = {
+        navMain: [
+            {
+                title: "School overview",
+                url: "/dashboard",
+                isActive: true,
+                icon: House
+            },
+            {
+                title: "Teacher management",
+                url: "#",
+                icon: UserCog
+            },
+            {
+                title: "Student management",
+                url: "#",
+                icon: UserPen
+            },
+            {
+                title: "Parent management",
+                url: "#",
+                icon: Users
+            },
+            {
+                title: "Report",
+                url: "#",
+                icon: FileClock
+            },
+            {
+                title: "All subject",
+                url: "#",
+                icon: FolderTree
+            },
+        ],
+        navSecondary: [
+            {
+                title: "Settings",
+                url: `/dashboard/school/${slug}/admin/setting`,
+                icon: Settings,
+            },
+            {
+                title: "Feedback",
+                url: "#",
+                icon: MessageCircle,
+            },
+            {
+                title: "Get Help",
+                url: "#",
+                icon: HelpCircle,
+                items: [
+                    {
+                        title: "Docs",
+                        url: "#",
+                        icon: BookOpen
+                    },
+                    {
+                        title: "Contact Support",
+                        url: "#",
+                        icon: Mail
+                    },
+                ],
+            },
+        ],
+    };
+    
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="bg-white">
