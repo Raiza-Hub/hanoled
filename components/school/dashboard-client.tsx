@@ -64,8 +64,9 @@ export default function DashboardClient({
 
     if (redirectTarget || isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <LoaderCircle className="animate-spin h-6 w-6" />
+            <div className="flex items-center justify-center min-h-screen" role="status" aria-live="polite">
+                <LoaderCircle className="animate-spin h-6 w-6" aria-hidden="true" />
+                <span className="sr-only">Loading…</span>
             </div>
         );
     }
