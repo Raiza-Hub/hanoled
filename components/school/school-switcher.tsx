@@ -23,7 +23,6 @@ import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { mapRoleToPath } from "./dashboard-client";
 
 
 const SchoolSwitcher: FC<{ slug: string }> = ({ slug }) => {
@@ -61,29 +60,29 @@ const SchoolSwitcher: FC<{ slug: string }> = ({ slug }) => {
 
 
     // Switch organization
-    const handleChangeOrganization = async (schoolObj: SchoolMessage) => {
-        if (!schoolObj) return;
+    // const handleChangeOrganization = async (schoolObj: SchoolMessage) => {
+    //     if (!schoolObj) return;
 
-        try {
-            const school = await getSchool(schoolObj.slug);
+    //     try {
+    //         const school = await getSchool(schoolObj.slug);
 
-            setCurrentSchool(school.message);
+    //         setCurrentSchool(school.message);
 
-            if (school.roles.length === 1) {
-                const targetPath = mapRoleToPath(school.roles[0]);
-                router.push(`/dashboard/school/${school.message.slug}/${targetPath}`);
-            } else if (school.roles.length > 1) {
-                router.push(`/dashboard/school/${school.message.slug}/choose-role`);
-            } else {
-                router.push("/unauthorized");
-            }
+    //         if (school.roles.length === 1) {
+    //             const targetPath = mapRoleToPath(school.roles[0]);
+    //             router.push(`/dashboard/school/${school.message.slug}/${targetPath}`);
+    //         } else if (school.roles.length > 1) {
+    //             router.push(`/dashboard/school/${school.message.slug}/choose-role`);
+    //         } else {
+    //             router.push("/unauthorized");
+    //         }
 
-            toast.success(`Switched to ${school.message.name} successfully`);
-        } catch (error) {
-            console.error("Failed to switch school:", error);
-            toast.error("Failed to switch school");
-        }
-    };
+    //         toast.success(`Switched to ${school.message.name} successfully`);
+    //     } catch (error) {
+    //         console.error("Failed to switch school:", error);
+    //         toast.error("Failed to switch school");
+    //     }
+    // };
 
     if (!currentSchool) return null;
 
@@ -136,13 +135,13 @@ const SchoolSwitcher: FC<{ slug: string }> = ({ slug }) => {
                         {schools?.message?.map((sch) => (
                             <DropdownMenuItem
                                 key={sch.id}
-                                onClick={() => handleChangeOrganization(sch)}
+                                // onClick={() => handleChangeOrganization(sch)}
                                 className="gap-2 p-2"
                             >
                                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <Avatar className="rounded-md">
                                         <AvatarImage
-                                            src={sch.logo || "https://github.com/evilrabbit.png"}
+                                            src={sch.logo}
                                         />
                                         <AvatarFallback className="bg-muted text-muted-foreground font-medium">
                                             {sch.name
