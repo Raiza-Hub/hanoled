@@ -6,15 +6,13 @@ import { CircleAlertIcon, CircleCheckIcon, Loader2, Mail, XIcon } from "lucide-r
 import { OTPInput } from "input-otp"
 
 import { Slot } from "@/components/slot"
-import { useState } from "react"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
 import { otpSchema } from "@/lib/validators/auth"
-import z from "zod"
 import { GetNewOtpError, GetNewOtpSuccess, OtpResponse } from "@/type"
+import { useMutation } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { toast } from "sonner"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import z from "zod"
 
 const VerifyEmailPage = () => {
     const router = useRouter();
@@ -148,7 +146,7 @@ const VerifyEmailPage = () => {
                     </div>
                     <div className="max-w-prose text-sm space-y-1">
                         <p className="text-zinc-500">
-                            We've sent a 7-digit verification code to your email
+                            We&apos;ve sent a 7-digit verification code to your email
                         </p>
                         <p className="text-zinc-500">
                             Please enter it below to continue.
