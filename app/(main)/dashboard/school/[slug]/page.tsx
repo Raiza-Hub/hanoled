@@ -1,5 +1,7 @@
-import DashboardClient from "@/components/school/dashboard-client";
 import type { ReactNode } from "react";
+import Sidebar, { SidebarItem } from "@/components/sidebar";
+import { FileClock, FolderTree, HelpCircle, LayoutDashboard, Settings, UserCog, UserPen, Users } from "lucide-react";
+import { CreateOptionsCarousel } from "@/components/school/create-rescource";
 
 export default async function SchoolDashboardPage({
     children,
@@ -11,8 +13,11 @@ export default async function SchoolDashboardPage({
     const { slug } = await params;
     
     return (
-        <DashboardClient slug={slug}>
-            {children}
-        </DashboardClient>
+        <div className="max-w-7xl mx-auto flex flex-col">
+            <div>
+                <CreateOptionsCarousel />
+            </div>
+           
+        </div> 
     );
 }
