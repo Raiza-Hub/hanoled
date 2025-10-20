@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { ForgotPassword, GetNewOtpError, GetNewOtpSuccess } from "@/type";
+import { ForgotPassword } from "@/type";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
