@@ -1,22 +1,22 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { CheckIcon, EyeIcon, EyeOffIcon, KeyRound, Loader2, RectangleEllipsis, XIcon } from "lucide-react"
+import { CheckIcon, EyeIcon, EyeOffIcon, Loader2, RectangleEllipsis, XIcon } from "lucide-react"
 
 
-import { useForgetPasswordEmail, useForgetPasswordEmailActions } from "@/app/stores/forget-password-store"
+import { useForgetPasswordEmail } from "@/app/stores/forget-password-store"
+import { Slot } from "@/components/slot"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { forgetPassword, resetPassword, TForgetPassword, TresetPassword } from "@/lib/validators/auth"
+import { resetPassword, TresetPassword } from "@/lib/validators/auth"
 import { ForgotPassword } from "@/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
 import { OTPInput } from "input-otp"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { Slot } from "@/components/slot"
+import { useForm } from "react-hook-form"
 
 
 const ResetPasswordPage = () => {
@@ -80,7 +80,7 @@ const ResetPasswordPage = () => {
         if (forgetPasswordEmail) {
             setValue("email", forgetPasswordEmail);
         }
-    }, [forgetPasswordEmail]);
+    }, [forgetPasswordEmail, setValue]);
 
     const { mutate, isPending, error, reset } = useMutation({
         mutationFn: async (userData: TresetPassword): Promise<ForgotPassword> => {
@@ -119,7 +119,7 @@ const ResetPasswordPage = () => {
                     </div>
                     <div className="max-w-prose text-sm space-y-1">
                         <p className="text-zinc-500">
-                            No worries, we'll send you reset instructions.
+                            No worries, we&apos;ll send you reset instructions.
                         </p>
                         {/* <p className="text-zinc-500">
                             Please enter it below to continue.
