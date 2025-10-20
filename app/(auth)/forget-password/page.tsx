@@ -4,20 +4,19 @@ import { Button } from "@/components/ui/button"
 import { KeyRound, Loader2 } from "lucide-react"
 
 
+import { useForgetPasswordEmailActions } from "@/app/stores/forget-password-store"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { forgetPassword, TForgetPassword } from "@/lib/validators/auth"
-import { ForgotPassword, OtpResponse } from "@/type"
+import { ForgotPassword } from "@/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useForgetPasswordEmailActions } from "@/app/stores/forget-password-store"
 
 
-const VerifyEmailPage = () => {
+const ForgetPasswordPage = () => {
     const router = useRouter();
     const setForgetPasswordEmail = useForgetPasswordEmailActions();
 
@@ -67,7 +66,7 @@ const VerifyEmailPage = () => {
                     </div>
                     <div className="max-w-prose text-sm space-y-1">
                         <p className="text-zinc-500">
-                            No worries, we'll send you reset instructions.
+                            No worries, we&apos;ll send you reset instructions.
                         </p>
                         {/* <p className="text-zinc-500">
                             Please enter it below to continue.
@@ -134,4 +133,4 @@ const VerifyEmailPage = () => {
     );
 }
 
-export default VerifyEmailPage;
+export default ForgetPasswordPage;
