@@ -4,16 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { SignIn, TSignIn } from "@/lib/validators/auth";
+import { SignInResponse } from "@/type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Icons } from "../icons";
-import { TSignIn, SignIn } from "@/lib/validators/auth";
-import { useState } from "react";
+
 
 const LoginForm = () => {
-    const [isPending, setIsPending] = useState<boolean>(false)
+    const router = useRouter()
 
     const {
         register,
@@ -24,15 +27,41 @@ const LoginForm = () => {
     });
 
     const handleSignInWithGoogle = async () => {
-        // sign-up using gmail
+
     };
 
     const handleSignInWithMicrosoft = async () => {
-        // sign-up using microsoft
+
     };
 
-    const onSubmit = ({ email, password }: TSignIn) => {
-        // sign-up using form fields
+    const { mutate, isPending, error } = useMutation({
+        mutationFn: async (userData: TSignIn): Promise<SignInResponse> => {
+            const res = await fetch("/api/sign-in", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(userData),
+            });
+
+            const data: SignInResponse = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message);
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            router.push("/dashboard");
+        },
+        // onError: (error: any) => {
+        //     toast.error(error.message || "Something went wrong");
+        // },
+    });
+
+    const onSubmit = async (data: TSignIn) => {
+
+        mutate(data);
     };
 
     return (
@@ -48,7 +77,7 @@ const LoginForm = () => {
                             })}
                             placeholder="you@example.com"
                         />
-                        {errors?.email && (
+                        {errors.email && (
                             <p className="text-sm text-red-500">{errors.email.message}</p>
                         )}
                     </div>
@@ -56,7 +85,7 @@ const LoginForm = () => {
                     <div className="grid gap-1 py-2">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="password">Password</Label>
-                            <Link href="#" className="text-sm text-secondary-foreground/80">
+                            <Link href="/forget-password" className="text-sm text-secondary-foreground/80">
                                 Forgot password?
                             </Link>
                         </div>
@@ -68,7 +97,7 @@ const LoginForm = () => {
                             })}
                             placeholder="Password"
                         />
-                        {errors?.password && (
+                        {errors.password && (
                             <p className="text-sm text-red-500">{errors.password.message}</p>
                         )}
                     </div>
@@ -102,6 +131,12 @@ const LoginForm = () => {
                         </Button>
                     </div>
 
+                    {error && (
+                        <p className="px-1 inline-flex justify-center text-sm text-red-500">
+                            {error.message}
+                        </p>
+                    )}
+                    
                     <Button className="cursor-pointer" disabled={isPending}>
                         {isPending ? (
                             <Loader2 className="size-4 animate-spin" />

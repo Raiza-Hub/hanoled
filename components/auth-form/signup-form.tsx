@@ -1,47 +1,124 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { TSignUp, SignUp } from "@/lib/validators/auth";
+import { SignUp, TSignUp } from "@/lib/validators/auth";
+import { SignUpError, SignUpSuccess } from "@/type";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { CheckIcon, EyeIcon, EyeOffIcon, Loader2, XIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useId, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Icons } from "../icons";
 
 const SignUpForm = () => {
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [isPending, setIsPending] = useState<boolean>(false)
+    const router = useRouter();
+    const id = useId();
 
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+
+
+
+    // Form setup
     const {
         register,
         handleSubmit,
         formState: { errors },
+        watch
     } = useForm<TSignUp>({
         resolver: zodResolver(SignUp),
     });
 
+    // Password visibility toggle
+    const toggleVisibility = () => setIsVisible((prev) => !prev);
 
-    const handleSignInWithGoogle = async () => {
-        // sign-up using gmail
+    // Password strength checker
+    const checkStrength = (pass: string) => {
+        const requirements = [
+            { regex: /.{8,}/, text: "At least 8 characters" },
+            { regex: /[0-9]/, text: "At least 1 number" },
+            { regex: /[a-z]/, text: "At least 1 lowercase letter" },
+            { regex: /[A-Z]/, text: "At least 1 uppercase letter" },
+        ];
+        return requirements.map((req) => ({
+            met: req.regex.test(pass),
+            text: req.text,
+        }));
     };
 
-    const handleSignInWithMicrosoft = async () => {
-        // sign-up using microsoft
+
+    const password = watch("password", "");
+    const strength = checkStrength(password);
+    const showStrengthMeter = isPasswordFocused || password.length > 0;
+
+    const strengthScore = useMemo(() => {
+        return strength.filter((req) => req.met).length;
+    }, [strength]);
+
+    const getStrengthColor = (score: number) => {
+        if (score === 0) return "bg-border";
+        if (score <= 1) return "bg-red-500";
+        if (score <= 2) return "bg-orange-500";
+        if (score === 3) return "bg-amber-500";
+        return "bg-emerald-500";
     };
 
-    const onSubmit = ({ name, email, password }: TSignUp) => {
-        // sign-up using form fields
+    const getStrengthText = (score: number) => {
+        if (score === 0) return "Enter a password";
+        if (score <= 2) return "Weak password";
+        if (score === 3) return "Medium password";
+        return "Strong password";
     };
+
+
+    // Sign up mutation
+    const { mutate, isPending, error } = useMutation({
+        mutationFn: async (userData: TSignUp): Promise<SignUpSuccess> => {
+            const res = await fetch("/api/sign-up", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(userData),
+            });
+
+            if (!res.ok) {
+                const errorData: SignUpError = await res.json()
+                throw new Error(errorData.message);
+            }
+
+            const data: SignUpSuccess = await res.json();
+            return data;
+        },
+        onSuccess: () => {
+            router.push("/verify-email");
+        },
+        // onError: (error: Error) => {
+        //     toast.error(error.message || "Something went wrong");
+        // },
+    });
+
+    const onSubmit = async (data: TSignUp) => {
+        mutate(data);
+    };
+
+    const handleSignInWithGoogle = () => {
+        throw new Error("Function not implemented.");
+    }
+    const handleSignInWithMicrosoft = () => {
+        throw new Error("Function not implemented.");
+    }
+
 
     return (
         <div className="grid gap-6">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-2">
-                    <div className="grid gap-1 py-2">
+                    {/* NAME FIELD */}
+                    <div className="grid gap-2 py-2">
                         <Label htmlFor="name">Name</Label>
                         <Input
                             {...register("name")}
@@ -50,12 +127,13 @@ const SignUpForm = () => {
                             })}
                             placeholder="Name"
                         />
-                        {errors?.name && (
+                        {errors.name && (
                             <p className="text-sm text-red-500">{errors.name.message}</p>
                         )}
                     </div>
 
-                    <div className="grid gap-1 py-2">
+                    {/* EMAIL FIELD */}
+                    <div className="grid gap-2 py-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
                             {...register("email")}
@@ -64,49 +142,84 @@ const SignUpForm = () => {
                             })}
                             placeholder="you@example.com"
                         />
-                        {errors?.email && (
+                        {errors.email && (
                             <p className="text-sm text-red-500">{errors.email.message}</p>
                         )}
                     </div>
 
-                    <div className="grid gap-1 py-2">
+                    {/* PASSWORD FIELD + STRENGTH METER */}
+                    <div className="grid gap-2 py-2">
                         <Label htmlFor="password">Password</Label>
                         <div className="relative">
                             <Input
                                 {...register("password")}
-                                type={showPassword ? "text" : "password"}
+                                id={id}
+                                type={isVisible ? "text" : "password"}
+                                placeholder="Password"
+                                onFocus={() => setIsPasswordFocused(true)}
+                                onBlur={() => setIsPasswordFocused(false)}
                                 className={cn({
                                     "focus-visible:ring-red-500": errors.password,
                                 })}
-                                placeholder="Password"
                             />
-                            <Button
+                            <button
                                 type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowPassword(!showPassword)}
+                                onClick={toggleVisibility}
+                                className="absolute inset-y-0 right-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground hover:text-foreground focus:outline-none"
                             >
-                                {showPassword ? (
-                                    <EyeOff
-                                        className="h-4 w-4 text-gray-500"
-                                        aria-hidden="true"
-                                        focusable="false"
-                                    />
+                                {isVisible ? (
+                                    <EyeOffIcon size={16} aria-hidden="true" />
                                 ) : (
-                                    <Eye
-                                        className="h-4 w-4 text-gray-500"
-                                        aria-hidden="true"
-                                        focusable="false"
-                                    />
+                                    <EyeIcon size={16} aria-hidden="true" />
                                 )}
-                            </Button>
+                            </button>
                         </div>
-                        {errors?.password && (
+
+                        {/* Strength Bar */}
+                        {showStrengthMeter && (
+                            <>
+                                {/* Strength Bar */}
+                                <div
+                                    className="mt-2 mb-1 h-1 w-full overflow-hidden rounded-full bg-border"
+                                    role="progressbar"
+                                    aria-valuenow={strengthScore}
+                                    aria-valuemin={0}
+                                    aria-valuemax={4}
+                                >
+                                    <div
+                                        className={`h-full ${getStrengthColor(strengthScore)} transition-all duration-500 ease-out`}
+                                        style={{ width: `${(strengthScore / 4) * 100}%` }}
+                                    />
+                                </div>
+
+                                {/* Strength text + rules */}
+                                <p className="text-sm font-medium text-foreground">
+                                    {getStrengthText(strengthScore)}. Must contain:
+                                </p>
+                                <ul className="space-y-1.5" aria-label="Password requirements">
+                                    {strength.map((req, index) => (
+                                        <li key={index} className="flex items-center gap-2">
+                                            {req.met ? (
+                                                <CheckIcon size={14} className="text-emerald-500" />
+                                            ) : (
+                                                <XIcon size={14} className="text-muted-foreground/80" />
+                                            )}
+                                            <span
+                                                className={`text-xs ${req.met ? "text-emerald-600" : "text-muted-foreground"}`}
+                                            >
+                                                {req.text}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+
+
+                        {errors.password && (
                             <p className="text-sm text-red-500">{errors.password.message}</p>
                         )}
                     </div>
-
                     <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                         <span className="bg-card text-muted-foreground relative z-10 px-2">
                             Or continue with
@@ -136,12 +249,14 @@ const SignUpForm = () => {
                         </Button>
                     </div>
 
+                    {/* SIGN UP BUTTON */}
+                    {error && (
+                        <p className="px-1 inline-flex justify-center text-sm text-red-500">
+                            {error.message}
+                        </p>
+                    )}
                     <Button className="cursor-pointer" disabled={isPending}>
-                        {isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                            "Sign up"
-                        )}
+                        {isPending ? <Loader2 className="size-4 animate-spin" /> : "Sign up"}
                     </Button>
                 </div>
             </form>
