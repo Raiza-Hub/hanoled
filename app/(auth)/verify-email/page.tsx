@@ -200,7 +200,7 @@ const VerifyEmailPage = () => {
                     </Button>
 
                     <div className="flex items-center justify-center text-sm text-zinc-600">
-                        Didn't receive the code?
+                        Didn&apos;t receive the code?
                         <Button
                             variant="link"
                             size="sm"
