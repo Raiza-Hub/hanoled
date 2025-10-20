@@ -60,3 +60,44 @@ export interface SchoolResponse {
 export type ValidatePasswordResponse = {
   success: boolean;
 };
+
+export interface OtpResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface GetNewOtpSuccess {
+  message: string;
+}
+export interface GetNewOtpError {
+  success: boolean;
+  message: string;
+}
+
+export interface SignUpSuccess {
+  success: true;
+  result: {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    emailVerified: boolean;
+    image: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface SignUpError {
+  success: false;
+  message: string;
+}
+
+export interface SignInResponse {
+  success: false;
+  message: string;
+}
+
+export interface ForgotPassword {
+  message: string;
+}
