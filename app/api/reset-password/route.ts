@@ -1,5 +1,4 @@
 import { env } from "@/env";
-import { ForgotPassword, GetNewOtpError, GetNewOtpSuccess } from "@/type";
 import { NextResponse } from "next/server";
 
 export async function PUT(req: Request) {
