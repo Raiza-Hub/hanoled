@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { SignInResponse, SignUpError } from "@/type";
+import { SignInResponse } from "@/type";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
