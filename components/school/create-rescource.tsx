@@ -56,7 +56,7 @@ export function CreateOptionsCarousel() {
                     {CREATE_OPTIONS.map((option) => (
                         <CarouselItem
                             key={option.label}
-                            className="sm:basis-1/2 md:basis-1/3 xl:basis-1/5 pl-0 mr-4 cursor-pointer hover:bg-accent border rounded-lg"
+                            className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5 pl-0 mr-4 cursor-pointer hover:bg-accent border rounded-lg"
                         >
                             <CreateOptionCard {...option} />
                         </CarouselItem>
