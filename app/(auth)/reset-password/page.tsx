@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Slot } from "@/components/slot"
 
 
-const VerifyEmailPage = () => {
+const ResetPasswordPage = () => {
     const router = useRouter();
 
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
@@ -297,4 +297,4 @@ const VerifyEmailPage = () => {
     );
 }
 
-export default VerifyEmailPage;
+export default ResetPasswordPage;
