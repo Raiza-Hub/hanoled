@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/env";
+import { v2 as cloudinary } from "cloudinary";
+import { NextResponse } from "next/server";
 
 cloudinary.config({
   cloud_name: env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,

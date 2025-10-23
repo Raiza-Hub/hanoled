@@ -1,49 +1,76 @@
 import z from "zod";
 
+export const SOCIALS = ["facebook", "instagram", "twitter", "linkedin"] as const
+
+
 export const onboardingSchema = z.object({
-  firstName: z
+  name: z
     .string()
-    .min(1, "Name is required")
-    .max(256, "Name is too long"),
+    .min(1, { error: "Name is required." })
+    .max(256, { error: "Name must be at most 256 characters long." }),
 
-//   lastName: z
-//     .string()
-//     .min(1, "Last name is required")
-//     .max(50, "Last name is too long"),
+  slug: z
+    .string()
+    .min(1, { error: "Slug is required." })
+    .max(256, { error: "Slug must be at most 256 characters long." })
+    .regex(/^[a-zA-Z0-9-]+$/, {
+      error: "Slug can only contain letters, numbers, and hyphens.",
+    }),
 
-//   age: z
-//     .string()
-//     .refine((val) => /^\d+$/.test(val), "Age must be a number")
-//     .refine((val) => Number(val) >= 13, "You must be at least 13 years old"),
+  logo: z
+    .union([z.instanceof(File), z.url().optional().or(z.literal(""))]),
+  
+  email: z
+    .email({ error: "Invalid email address" }),
 
-//   street: z
-//     .string()
-//     .min(1, "Street is required")
-//     .max(100, "Street name is too long"),
+  country: z
+    .string()
+    .min(1, { error: "Country is required" }),
+  
+  address: z
+    .string()
+    .min(1, { error: "Address is required" }),
 
   city: z
     .string()
-    .min(1, "City is required")
-    .max(50, "City name is too long"),
+    .min(1, { error: "City is required" })
+    .max(256, { error: "City must be at most 256 characters long." }),
 
   state: z
     .string()
-    .min(1, "State is required")
-    .max(50, "State name is too long"),
+    .min(1, { error: "State is required" }),
 
-//   zip: z
-//     .string()
-//     .regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code format"),
+  zipCode: z
+    .string()
+    .regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format"),
+  
+  category: z.enum(["primary", "secondary", "tertiary"], {
+    error: "Category is required",
+  }),
 
-//   email: z
-//     .email("Invalid email address"),
+  schoolType: z.enum(["public", "private", "federal", "state"], {
+   error: "School type is required",
+  }),
 
-//   password: z
-//     .string()
-//     .min(8, "Password must be at least 8 characters long")
-//     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-//     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-//     .regex(/\d/, "Password must contain at least one number"),
+  website: z
+    .url({ error: "Invalid website URL" })
+    .optional()
+    .or(z.literal("")), 
+  
+  socialLinks:  z
+  .array(
+    z.object({
+      type: z.enum(["facebook", "instagram", "twitter", "linkedin"]),
+      url: z.url({error:  "Invalid website URL" }).optional().or(z.literal("")),
+    })
+  ).default([]).optional(),
+
+  
+  //The metadata stores the school phone number
+  metadata: z
+    .string()
+    .min(11, { error: "Phone number is required" })
+    .max(20),
 });
 
 
