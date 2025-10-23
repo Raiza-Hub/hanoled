@@ -222,7 +222,7 @@ export default function OnboardingContainer() {
                             Prev step
                         </Button>
 
-                        <Button className="w-32 cursor-pointer" type="button" onClick={onNext} disabled={isPending || isUploading}>
+                        <Button className="w-32 cursor-pointer" type="submit" disabled={isPending || isUploading}>
                             {currentStep === steps.length ? "Finish" : "Next step"}
                         </Button>
                     </div>
