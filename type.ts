@@ -118,7 +118,7 @@ export interface CreateSchoolSuccess {
     studentNo: number;
     teacherNo: number;
     parentNo: number;
-    category: "primary" | "secondary" | "university" | string;
+    category: "primary" | "secondary" | "tertiary" | string;
     schoolType: "private" | "public" | "federal" | "state" | string;
     website: string;
     socialLinks: {
