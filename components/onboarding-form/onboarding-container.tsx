@@ -26,7 +26,7 @@ import BasicInfoForm from "./basic-info"
 const steps = [
     { id: 1, title: "Basic Info", description: "Enter your basic details", Component: BasicInfoForm, fields: ["logo", "name", "email", "slug"] },
     { id: 2, title: "Address", description: "Provide your address details", Component: AddressInfoForm, fields: ["city", "state", "country", "address", "zipCode"] },
-    { id: 3, title: "Additional", description: "Please provide additional details.", Component: AdditionalInfoForm, fields: ["category", "website", "schoolType", "metadata", "paymentStatus"] }
+    { id: 3, title: "Additional", description: "Please provide additional details.", Component: AdditionalInfoForm, fields: ["category", "website", "schoolType", "metadata", "socialLinks"] }
 ]
 export default function OnboardingContainer() {
     const router = useRouter()
@@ -135,7 +135,7 @@ export default function OnboardingContainer() {
             logo: publicUrl,
         };
 
-        mutate(dataToSave); 
+        mutate(dataToSave);
     }
 
     const onNext = async () => {
@@ -156,7 +156,16 @@ export default function OnboardingContainer() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 text-center">
-            <Stepper value={currentStep} onValueChange={setCurrentStep}>
+            <Stepper
+                value={currentStep}
+                onValueChange={async (next) => {
+                    if (next === currentStep) return
+                    const ok = await methods.trigger(
+                        steps[currentStep - 1].fields as (keyof TonboardingSchema)[]
+                    )
+                    if (ok) setCurrentStep(next)
+                }}
+            >
                 {steps.map(({ id, title, description }) => (
                     <StepperItem
                         key={id}
@@ -180,7 +189,13 @@ export default function OnboardingContainer() {
             </Stepper>
 
             <FormProvider  {...methods}>
-                <form method="post" className="space-y-8">
+                <form
+                    className="space-y-8"
+                    onSubmit={async (e) => {
+                        e.preventDefault()
+                        await onNext()
+                    }}
+                >
                     <div className="max-w-lg mx-auto mt-10 text-start">
                         <CurrentStepComponent />
                     </div>
