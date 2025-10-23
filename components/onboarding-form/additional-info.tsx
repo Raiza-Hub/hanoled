@@ -169,27 +169,31 @@ const AdditionalInfoForm = () => {
                 </div>
 
                 <div className="space-y-4">
-                    {SOCIALS.map((social) => (
+                    {SOCIALS.map((social, i) => (
                         <div key={social} className="grid gap-2 py-2">
-                            <Label htmlFor={social}>{social.charAt(0).toUpperCase() + social.slice(1)}</Label>
+                            {/* ensure required type is submitted */}
+                            <input type="hidden" value={social} {...register(`socialLinks.${i}.type` as const)} />
+                            <Label htmlFor={`social-${social}`}>
+                                {social.charAt(0).toUpperCase() + social.slice(1)}
+                            </Label>
                             <Controller
-                                name={`socialLinks.${SOCIALS.indexOf(social)}.url`}
+                                name={`socialLinks.${i}.url`}
                                 control={control}
                                 render={({ field }) => (
                                     <Input
+                                        id={`social-${social}`}
                                         {...field}
                                         placeholder={`Enter ${social} URL`}
                                         className={cn(
                                             "w-full border rounded-md px-2 py-1",
-                                            errors.socialLinks?.[SOCIALS.indexOf(social)]?.url &&
-                                            "border-red-500 focus-visible:ring-red-500"
+                                            errors.socialLinks?.[i]?.url && "border-red-500 focus-visible:ring-red-500"
                                         )}
                                     />
                                 )}
                             />
-                            {errors.socialLinks?.[SOCIALS.indexOf(social)]?.url && (
+                            {errors.socialLinks?.[i]?.url && (
                                 <p className="text-sm text-red-500">
-                                    {errors.socialLinks[SOCIALS.indexOf(social)]?.url?.message}
+                                    {errors.socialLinks?.[i]?.url?.message}
                                 </p>
                             )}
                         </div>
