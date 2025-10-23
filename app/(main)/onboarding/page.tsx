@@ -4,8 +4,8 @@ import OnboardingContainer from "@/components/onboarding-form/onboarding-contain
 
 const OnboardingPage = () => {
     return ( 
-        <div>
-            <div>
+        <div className="w-full bg-background p-6 mt-4">
+            <div className="mx-auto max-w-7xl">
                 <OnboardingContainer />
             </div>
         </div>
