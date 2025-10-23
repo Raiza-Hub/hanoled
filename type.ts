@@ -101,3 +101,40 @@ export interface SignInResponse {
 export interface ForgotPassword {
   message: string;
 }
+
+export interface CreateSchoolSuccess {
+  success: boolean;
+  message: {
+    id: string;
+    name: string;
+    slug: string;
+    logo: string;
+    email: string;
+    country: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    studentNo: number;
+    teacherNo: number;
+    parentNo: number;
+    category: "primary" | "secondary" | "university" | string;
+    schoolType: "private" | "public" | "federal" | "state" | string;
+    website: string;
+    socialLinks: {
+      twitter?: string;
+      facebook?: string;
+      instagram?: string;
+      linkedin?: string;
+      [key: string]: string | undefined;
+    };
+    paymentStatus: boolean;
+    metadata: string;
+    createdAt: string;
+  };
+}
+
+export interface CreateSchoolError {
+  success: false;
+  message: string;
+}
