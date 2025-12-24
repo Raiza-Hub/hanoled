@@ -85,23 +85,10 @@ export function RealTimeUpdate({
             />
             <AnimatedBeam
                 containerRef={containerRef}
-                fromRef={div2Ref}
+                fromRef={div5Ref}
                 toRef={div6Ref}
                 duration={3}
             />
-            <AnimatedBeam
-                containerRef={containerRef}
-                fromRef={div3Ref}
-                toRef={div6Ref}
-                duration={3}
-            />
-            <AnimatedBeam
-                containerRef={containerRef}
-                fromRef={div4Ref}
-                toRef={div6Ref}
-                duration={3}
-            />
-            <AnimatedBeam
                 containerRef={containerRef}
                 fromRef={div5Ref}
                 toRef={div6Ref}
