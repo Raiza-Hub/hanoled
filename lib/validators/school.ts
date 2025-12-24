@@ -17,7 +17,7 @@ export const onboardingSchema = z.object({
       error: "Slug can only contain lowercase letters, numbers, and hyphens.",
     }),
 
-  logo: z
+  file: z
     .union([z.instanceof(File), z.url().optional().or(z.literal(""))]),
   
   email: z
