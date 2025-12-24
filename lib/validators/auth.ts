@@ -32,6 +32,23 @@ export const SignUp = z.object({
     }),
 });
 
+export const updateAccount = z.object({
+  name: z
+    .string()
+    .min(1, { error: "Spreadsheet name is required." })
+    .max(256, { error: "Spreadsheet must be at most 256 characters long." })
+    .optional(),
+  email: z
+    .email({ error: "Email is required." })
+    .optional(),
+  logo: z
+    .instanceof(File, { error: "Student photo is required" })
+    .optional(),
+  // password: z.string().min(8, {
+  //   error: "Password is required",
+  // }),
+});
+
 export const otpSchema = z
   .string()
   .regex(/^\d{7}$/, "OTP must be exactly 7 digits")
@@ -70,5 +87,6 @@ export const resetPassword = z
 
 export type TSignIn = z.infer<typeof SignIn>;
 export type TSignUp = z.infer<typeof SignUp>;
+export type TUpdateAccount = z.infer<typeof updateAccount>;
 export type TForgetPassword = z.infer<typeof forgetPassword>
 export type TresetPassword = z.infer<typeof resetPassword>

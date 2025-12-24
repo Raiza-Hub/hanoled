@@ -5,21 +5,37 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
       const {
-        name,
-        slug,
-        logo,
-        metadata,
-        email,
-        country,
-        address,
-        city,
-        state,
-        zipCode,
-        category,
-        schoolType,
-        website,
-        socialLinks
-    } = await req.json();
+      name,
+      slug,
+      phone,
+      email,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      category,
+      schoolType,
+      website,
+      socialLinks,
+      } = await req.json();
+    
+    console.log(
+      name,
+      slug,
+      phone,
+      email,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      category,
+      schoolType,
+      website,
+      socialLinks,
+    );
+    
       
       
     const cookieHeader = req.headers.get("cookie") || "";
@@ -31,7 +47,20 @@ export async function POST(req: Request) {
         "Cookie": cookieHeader,
         },
       credentials: "include",
-      body: JSON.stringify({ name, slug, logo, metadata, email, country, address, city, state, zipCode, category, schoolType, website, socialLinks })
+      body: JSON.stringify({
+      name,
+      slug,
+      phone,
+      email,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      category,
+      schoolType,
+      website,
+      socialLinks,})
     });
 
     const data: CreateSchoolSuccess = await res.json();

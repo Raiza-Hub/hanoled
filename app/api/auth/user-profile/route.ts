@@ -3,22 +3,19 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
-    const cookie = req.headers.get("cookie") || "";
+    const cookieHeader = req.headers.get("cookie") || "";
 
-    const match = cookie.match(/better-auth\.session_token=[^;]+/);
-    const sessionToken = match ? match[0] : "";
-
-
-    const res = await fetch(`${env.SERVER_URL}/api/organization/userOrganizations`, {
+    const res = await fetch(`${env.SERVER_URL}/api/auth/userProfile`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        cookie: sessionToken,
+        "Cookie": cookieHeader,
       },
       credentials: "include",
     });
 
     const data = await res.json();
-
+    
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error("Proxy error:", error);

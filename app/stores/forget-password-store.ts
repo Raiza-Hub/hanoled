@@ -3,7 +3,8 @@ import { persist } from "zustand/middleware";
 
 interface ForgetPasswordEmailState {
   ForgetPasswordEmail: string | undefined;
-   setForgetPasswordEmail: (email: string) => void;
+  setForgetPasswordEmail: (email: string) => void;
+  setclearForgetPasswordEmail: () => void;
 }
 
 
@@ -12,6 +13,7 @@ const useForgetPasswordStore = create<ForgetPasswordEmailState>()(
     (set) => ({
       ForgetPasswordEmail: undefined,
       setForgetPasswordEmail: (email) => set({ ForgetPasswordEmail: email }),
+      setclearForgetPasswordEmail: () => set({ ForgetPasswordEmail: undefined }),
     }),
     {
       name: "forget-password-email-storage",
@@ -24,5 +26,8 @@ export const useForgetPasswordEmail = () =>
 
 export const useForgetPasswordEmailActions = () =>
   useForgetPasswordStore((state) => state.setForgetPasswordEmail);
+
+export const useclearForgetPasswordEmailActions = () =>
+  useForgetPasswordStore((state) => state.setclearForgetPasswordEmail);
 
 

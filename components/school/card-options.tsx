@@ -1,10 +1,10 @@
 "use client";
 
-import { LucideIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 
-// Import your actual form components
-
+import { Icon } from "@tabler/icons-react";
+import { useParams } from "next/navigation";
 import { CreateDialog } from "../create-dialog";
 import CreateClassForm from "./resources/create-class";
 import CreateParentForm from "./resources/create-parent";
@@ -14,28 +14,33 @@ import CreateSubjectForm from "./resources/create-subject";
 import CreateTeacherForm from "./resources/create-teacher";
 
 type CreateOptionCardProps = {
-    icon: LucideIcon;
+    icon: Icon;
     label: string;
     mutation: string;
 };
 
 export function CreateOptionCard({ icon: Icon, label, mutation }: CreateOptionCardProps) {
+    const { slug } = useParams<{ slug: string }>();
+
     const [open, setOpen] = useState(false);
+    const handleSuccess = () => setOpen(false);
+
+
 
     const renderForm = () => {
         switch (mutation) {
             case "createSubject":
-                return <CreateSubjectForm />;
+                return <CreateSubjectForm onSuccess={handleSuccess} slug={slug} />;
             case "createClass":
-                return <CreateClassForm />;
+                return <CreateClassForm onSuccess={handleSuccess} slug={slug} />;
             case "createTeacher":
-                return <CreateTeacherForm />;
+                return <CreateTeacherForm onSuccess={handleSuccess} slug={slug} />;
             case "createSpreadsheet":
-                return <CreateSpreadsheetForm />;
+                return <CreateSpreadsheetForm onSuccess={handleSuccess} slug={slug} />;
             case "createStudent":
-                return <CreateStudentForm />;
+                return <CreateStudentForm onSuccess={handleSuccess} slug={slug} />;
             case "createParent":
-                return <CreateParentForm />;
+                return <CreateParentForm onSuccess={handleSuccess} slug={slug} />;
             default:
                 return <div>Form not found</div>;
         }
@@ -57,7 +62,7 @@ export function CreateOptionCard({ icon: Icon, label, mutation }: CreateOptionCa
                     {label}
                 </h3>
             </div>
-            <CreateDialog open={open} onOpenChange={setOpen} title={label} >
+            <CreateDialog open={open} onOpenChange={setOpen} title={label}>
                 {renderForm()}
             </CreateDialog>
         </>

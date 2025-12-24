@@ -1,108 +1,186 @@
 "use client";
 
+import { CustomToast } from "@/components/custom-toast";
+import { SelectTeacher } from "@/components/select-teacher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { classLevelSchema, TclassLevelSchema } from "@/lib/validators/resource";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiResponse, ClassItem } from "@/type";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { TSignIn, SignIn } from "@/lib/validators/auth";
-import { useState } from "react";
-// import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 
-const CreateClassForm = () => {
-        const [isLoading, setIsLoading] = useState<boolean>(false)
-    
-        const router = useRouter()
-    
-        const {
-            register,
-            handleSubmit,
-            formState: { errors },
-        } = useForm<TSignIn>({
-            resolver: zodResolver(SignIn),
-        });
+type CreateClassFormProps = {
+    slug: string
+    onSuccess?: () => void;
+};
 
-    const onSubmit = async ({ email, password }: TSignIn) => {
-        setIsLoading(true);
 
-        // try {
-        //     const { data: success, error } = await authClient.signIn.email({
-        //         email,
-        //         password,
-        //     });
+const CreateClassForm = ({ slug, onSuccess }: CreateClassFormProps) => {
+    const queryClient = useQueryClient();
 
-        //     // Handle success
-        //     if (success) {
-        //         router.push("/dashboard");
-        //     } else {
-        //         toast.error(error.message || "Login failed");
-        //         console.log("Login error:", error);
-        //     }
+    const {
+        register,
+        setValue,
+        watch,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<TclassLevelSchema>({
+        resolver: zodResolver(classLevelSchema),
+        defaultValues: {
+            className: "",
+            level: "",
+            limit: 0,
+            memberId: ""
+        }
+    });
 
-        // } catch (err) {
-        //     // The auth client will throw structured errors
-        //     toast.error('Something went wrong.');
-        //     console.error('Sign-in error:', err);
-        // } finally {
-        //     setIsLoading(false);
-        // }
+    const selectedMember = watch("memberId")
+
+    const { mutate, isPending } = useMutation({
+        mutationFn: async (userData: TclassLevelSchema) => {
+            const res = await fetch(`/api/admin/${slug}/create-class`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(userData),
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || "Something went wrong");
+            }
+
+            const data = await res.json();
+            return data;
+        },
+        onMutate: async (newClass) => {
+            await queryClient.cancelQueries({ queryKey: ["get-classes", slug] });
+            const previousClasses = queryClient.getQueryData(["get-classes", slug]);
+
+            // Create a temporary optimistic class object
+            const optimisticClass = {
+                id: `temp-${Date.now()}`,
+                class: newClass.className,
+                level: newClass.level,
+                limit: newClass.limit,
+                memberId: newClass.memberId,
+                member: { user: { name: "Assigning...", email: "", id: "", emailVerified: false, image: null, createdAt: "", updatedAt: "" } },
+                organizationId: "",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+
+            queryClient.setQueryData(["get-classes", slug], (old: ApiResponse<ClassItem> | undefined) => ({
+                ...old,
+                message: [...(old?.message || []), optimisticClass]
+            }));
+
+            // Close dialog immediately after optimistic update
+            if (onSuccess) onSuccess();
+
+            return { previousClasses };
+        },
+        onError: (err, newClass, context) => {
+            queryClient.setQueryData(["get-classes", slug], context?.previousClasses);
+            CustomToast({ message: err.message, variant: "error" });
+        },
+        onSuccess: () => {
+            CustomToast({ message: "Class created successfully." });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["get-classes", slug] });
+            // Also invalidate dropdown queries that use classes
+            queryClient.invalidateQueries({ queryKey: ["get-all-classes", slug] });
+            // Refresh unassigned members since a teacher was assigned
+            queryClient.invalidateQueries({ queryKey: ["get-unassigned-member", slug] });
+        },
+    });
+
+    const onSubmit = async (data: TclassLevelSchema) => {
+        mutate(data);
     };
 
-    return ( 
+    return (
         <div className="grid gap-6">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-2">
-                    <div className="grid gap-1 py-2">
-                        <Label htmlFor="email">Email</Label>
+                    <div className="grid gap-2 py-2">
+                        <Label htmlFor="className">Class name</Label>
                         <Input
-                            {...register("email")}
+                            {...register("className")}
+                            id="className"
                             className={cn({
-                                "focus-visible:ring-red-500": errors.email,
+                                "focus-visible:ring-red-500": errors.className,
                             })}
-                            placeholder="you@example.com"
+                            placeholder="SS1 White"
                         />
-                        {errors?.email && (
-                            <p className="text-sm text-red-500">{errors.email.message}</p>
+                        {errors?.className && (
+                            <p className="text-sm text-red-500">{errors.className.message}</p>
                         )}
                     </div>
 
-                    <div className="grid gap-1 py-2">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="password">Password</Label>
-                            <Link href="#" className="text-sm text-secondary-foreground/80">
-                                Forgot password?
-                            </Link>
-                        </div>
+                    <div className="grid gap-2 py-2">
+                        <Label htmlFor="level">Grade</Label>
                         <Input
-                            {...register("password")}
-                            type="password"
+                            {...register("level")}
+                            id="level"
                             className={cn({
-                                "focus-visible:ring-red-500": errors.password,
+                                "focus-visible:ring-red-500": errors.level,
                             })}
-                            placeholder="Password"
+                            placeholder="SS1"
                         />
-                        {errors?.password && (
-                            <p className="text-sm text-red-500">{errors.password.message}</p>
+                        {errors?.level && (
+                            <p className="text-sm text-red-500">{errors.level.message}</p>
                         )}
                     </div>
 
-                    <Button className="cursor-pointer" disabled={isLoading}>
-                        {isLoading ? (
-                            <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                            "Sign in"
+                    <div className="grid gap-2 py-2">
+                        <Label htmlFor="limit">Limit</Label>
+                        <Input
+                            {...register("limit", { valueAsNumber: true })}
+                            id="limit"
+                            type="number"
+                            className={cn({
+                                "focus-visible:ring-red-500": errors.limit,
+                            })}
+                            placeholder="Enter class limit"
+                        />
+                        {errors?.limit && (
+                            <p className="text-sm text-red-500">{errors.limit.message}</p>
                         )}
+                    </div>
+
+                    <SelectTeacher<TclassLevelSchema>
+                        label="Class teacher"
+                        placeholder="Select class teacher"
+                        fetchUrl={`/api/admin/${slug}/unassigned-members`}
+                        fieldName="memberId"
+                        selectedValue={selectedMember}
+                        setValue={setValue}
+                        error={errors?.memberId}
+                        queryKey="get-unassigned-member"
+                        searchWord="Search teacher..."
+                        emptyField="No teacher found."
+                        slug={slug}
+                    />
+
+                    <Button className="cursor-pointer" disabled={isPending}>
+                        {isPending ? (
+                            <div className="inline-flex items-center gap-2">
+                                <Loader2 className="size-4 animate-spin" />
+                                Creating...
+                            </div>
+                        ) : "Create Class"}
                     </Button>
                 </div>
             </form>
         </div>
-     );
+    );
 }
- 
+
 export default CreateClassForm;

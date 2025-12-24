@@ -5,16 +5,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   try {
     const { slug } = await params;
 
-    const cookie = req.headers.get("cookie") || "";
-      
-    const match = cookie.match(/better-auth\.session_token=[^;]+/);
-    const sessionToken = match ? match[0] : "";
+    const cookieHeader = req.headers.get("cookie") || "";
 
 
-    const res = await fetch(`${env.SERVER_URL}/api/organization/userOrganization/${slug}`, {
+    const res = await fetch(`${env.SERVER_URL}/api/organization/organization/${slug}`, {
       headers: {
         "Content-Type": "application/json",
-        cookie: sessionToken,
+        "cookie": cookieHeader,
       },
       credentials: "include",
     });

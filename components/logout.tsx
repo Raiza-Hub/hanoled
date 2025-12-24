@@ -1,32 +1,49 @@
-// "use client";
+"use client";
 
-// import { LogOut } from "lucide-react";
-// import { useRouter } from "next/navigation";
-// import { authClient } from "@/lib/auth-client";
-// import { Button } from "./ui/button";
+import { useclearCurrentSchoolActions } from "@/app/stores/school-store";
+import { useMutation } from "@tanstack/react-query";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
 
-// export function Logout() {
-//     const router = useRouter();
+export function Logout() {
+    const router = useRouter();
+    const setclearCurrentSchool = useclearCurrentSchoolActions();
 
-//     const handleLogout = async () => {
-//         await authClient.signOut({
-//             fetchOptions: {
-//                 onSuccess: () => {
-//                     router.replace("/sign-in");
-//                 },
-//             },
-//         });
-//     };
+    const { mutate: logout, isPending } = useMutation({
+        mutationFn: async () => {
+            const res = await fetch("/api/auth/logout", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+            });
 
-//     return (
-//         <Button
-//             variant="ghost"
-//             size="sm"
-//             className="w-full justify-start font-normal"
-//             onClick={handleLogout}
-//         >
-//             <LogOut className="text-muted-foreground" />
-//             Log out
-//         </Button>
-//     );
-// }
+            if (!res.ok) {
+                const errData = await res.json();
+
+            
+            }
+            const data = await res.json();
+            return data;
+        },
+
+        onSuccess: () => {
+            setclearCurrentSchool()
+            router.replace("/sign-in")
+            
+        },
+    });
+
+    return (
+        <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 shrink-0 cursor-pointer"
+            onClick={() => logout()}
+            disabled={isPending}
+            title="logout"
+        >
+            <LogOut className="text-red-500" />
+        </Button>
+    );
+}
