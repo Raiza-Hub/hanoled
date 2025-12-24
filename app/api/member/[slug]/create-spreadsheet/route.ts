@@ -1,25 +1,32 @@
 import { env } from "@/env";
-import { ApiErrorResponse, CreateSubjectResponse } from "@/type";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
     try {
     const { slug } = await params;
-    const {  emails, role  } = await req.json();
+    const {
+
+    } = await req.json();
+
+    
 
     const cookieHeader = req.headers.get("cookie") || "";
       
-    const res = await fetch(`${env.SERVER_URL}/api/admin/member/invite/${slug}`, {
+    const res = await fetch(`${env.SERVER_URL}/api/member/create/student/${slug}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Cookie": cookieHeader,
         },
       credentials: "include",
-      body: JSON.stringify({ rawEmail: emails, role }),
+      body: JSON.stringify({
+
+      })
     });
 
-    const data = await res.json();
+      const data = await res.json();
+      console.log(data);
+      
             
     return NextResponse.json(data, { status: res.status });
   } catch (err) {

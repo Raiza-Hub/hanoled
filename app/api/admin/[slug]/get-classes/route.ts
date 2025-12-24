@@ -17,7 +17,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       credentials: "include",
     });
 
-    const data = await res.json();
+      const data = await res.json();
+      console.log(data);
+      
             
     return NextResponse.json(data, { status: res.status });
   } catch (err) {

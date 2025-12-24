@@ -9,7 +9,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
 
     const cookieHeader = req.headers.get("cookie") || "";
       
-    const res = await fetch(`${env.SERVER_URL}/api/admin/get/unassignedMember/${slug}`, {
+    const res = await fetch(`${env.SERVER_URL}/api/admin/create/class/${slug}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
