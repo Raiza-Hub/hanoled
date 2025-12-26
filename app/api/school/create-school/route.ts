@@ -4,69 +4,24 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-      const {
-      name,
-      slug,
-      phone,
-      email,
-      country,
-      address,
-      city,
-      state,
-      zipCode,
-      category,
-      schoolType,
-      website,
-      socialLinks,
-      } = await req.json();
-    
-    console.log(
-      name,
-      slug,
-      phone,
-      email,
-      country,
-      address,
-      city,
-      state,
-      zipCode,
-      category,
-      schoolType,
-      website,
-      socialLinks,
-    );
-    
-      
-      
     const cookieHeader = req.headers.get("cookie") || "";
-      
+    
+    // Get the FormData from the request
+    const formData = await req.formData();
+    
+    // Forward the FormData directly to the Express backend
     const res = await fetch(`${env.SERVER_URL}/api/organization/create`, {
       method: "POST",
       headers: { 
-        "Content-Type": "application/json",
         "Cookie": cookieHeader,
-        },
-      credentials: "include",
-      body: JSON.stringify({
-      name,
-      slug,
-      phone,
-      email,
-      country,
-      address,
-      city,
-      state,
-      zipCode,
-      category,
-      schoolType,
-      website,
-      socialLinks,})
+        // Don't set Content-Type - let fetch set it with boundary for multipart/form-data
+      },
+      body: formData,
     });
 
     const data: CreateSchoolSuccess = await res.json();
       
     console.log(data);
-      
 
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
