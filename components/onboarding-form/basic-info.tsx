@@ -3,9 +3,11 @@
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { cn } from "@/lib/utils";
 import { TonboardingSchema } from "@/lib/validators/school";
+import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { CircleUserRoundIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -15,6 +17,7 @@ import { Label } from "../ui/label";
 const BasicInfoForm = () => {
     const [previewUrl, setPreviewUrl] = useState<string | null | undefined>(null);
 
+
     const {
         register,
         setValue,
@@ -22,6 +25,7 @@ const BasicInfoForm = () => {
         getValues,
         formState: { errors },
     } = useFormContext<TonboardingSchema>();
+
 
     const [
         { files, isDragging },
@@ -39,7 +43,8 @@ const BasicInfoForm = () => {
         accept: "image/*",
     })
 
-    const logoFile = watch("logo")
+    const logoFile = watch("file")
+    const slugValue = watch("slug");
 
     const rehydratedRef = useRef(false);
     // track previously applied file id so we don't repeatedly set the same value
@@ -101,7 +106,7 @@ const BasicInfoForm = () => {
 
             // If uploader has a real File, set it into the form if different
             if (currentFile instanceof File) {
-                const existing = getValues("logo");
+                const existing = getValues("file");
                 const isSame =
                     existing instanceof File &&
                     existing.name === currentFile.name &&
@@ -110,7 +115,7 @@ const BasicInfoForm = () => {
                     (existing as File).lastModified === (currentFile as File).lastModified;
 
                 if (!isSame) {
-                    setValue("logo", currentFile, { shouldValidate: true });
+                    setValue("file", currentFile, { shouldValidate: true });
                 }
             } else {
                 // file is metadata (e.g. server-provided), do not set a File value
@@ -120,9 +125,9 @@ const BasicInfoForm = () => {
             setPreviewUrl(fw.preview ?? null);
         } else {
             // no files in uploader -> clear form value only if it currently has one
-            const existing = getValues("logo");
+            const existing = getValues("file");
             if (existing) {
-                setValue("logo", undefined, { shouldValidate: true });
+                setValue("file", undefined, { shouldValidate: true });
             }
             setPreviewUrl(null);
         }
@@ -146,11 +151,44 @@ const BasicInfoForm = () => {
         rehydratedRef.current = false;
         prevFileIdRef.current = null;
 
-        setValue("logo", undefined, { shouldValidate: true });
+        setValue("file", undefined, { shouldValidate: true });
         setPreviewUrl(null);
     };
 
     const hasImage = !!previewUrl;
+
+    const { data: slugs, isLoading } = useQuery({
+        queryKey: ["get-slug"],
+        queryFn: async () => {
+            const res = await fetch("/api/school/get-slug", {
+                method: "GET",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message);
+            }
+            return res.json();
+        },
+    });
+
+    const slugList = useMemo(() => {
+        if (!slugs) return [];
+        if (Array.isArray(slugs?.message)) return slugs.message;
+        return [];
+    }, [slugs]);
+
+    // -----------------------------
+    // CHECK SLUG AVAILABILITY
+    // -----------------------------
+    const isSlugAvailable = useMemo(() => {
+        if (!slugValue) return null;
+        const slugTaken = slugList.some(
+            (slug: string) => slug.toLowerCase() === slugValue.toLowerCase()
+        );
+        return !slugTaken;
+    }, [slugValue, slugList]);
+
 
 
     return (
@@ -199,8 +237,8 @@ const BasicInfoForm = () => {
                     <input {...getInputProps()} className="sr-only" aria-label="Upload image file" tabIndex={-1} />
                 </div>
 
-                {errors.logo && (
-                    <p className="text-xs text-red-500 mt-1">{errors.logo.message}</p>
+                {errors.file && (
+                    <p className="text-xs text-red-500 mt-1">{errors.file.message}</p>
                 )}
             </div>
             <div>
@@ -231,19 +269,33 @@ const BasicInfoForm = () => {
                             <p className="text-sm text-red-500">{errors.email.message}</p>
                         )}
                     </div>
-                    <div className="grid gap-2 py-2">
+                    <div className="grid gap-2 py-2 relative">
                         <Label htmlFor="slug">School Slug</Label>
-                        <Input
-                            {...register("slug")}
-                            className={cn({
-                                "focus-visible:ring-red-500": errors.slug,
-                            })}
-                            placeholder="slug-name"
-                        />
+                        <div className="relative">
+                            <Input
+                                {...register("slug")}
+                                placeholder="slug-name"
+                                className={cn({
+                                    "focus-visible:ring-red-500": errors.slug,
+                                    "pr-8": true,
+                                })}
+                            />
+                  
+                            {slugValue && isSlugAvailable !== null && (
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                    {isSlugAvailable ? (
+                                        <IconCircleCheck className="text-green-500 size-4" />
+                                    ) : (
+                                        <IconCircleX className="text-red-500 size-4" />
+                                    )}
+                                </div>
+                            )}
+                        </div>
                         {errors.slug && (
                             <p className="text-sm text-red-500">{errors.slug.message}</p>
                         )}
                     </div>
+
                 </div>
             </div>
         </div>
