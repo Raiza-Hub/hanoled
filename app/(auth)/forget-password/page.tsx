@@ -30,7 +30,7 @@ const ForgetPasswordPage = () => {
 
     const { mutate, isPending, error } = useMutation({
         mutationFn: async (userData: TForgetPassword): Promise<ForgotPassword> => {
-            const res = await fetch("/api/forget-password", {
+            const res = await fetch("/api/auth/forget-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

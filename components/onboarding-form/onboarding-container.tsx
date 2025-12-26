@@ -13,7 +13,7 @@ import {
 import { onboardingSchema, TonboardingSchema } from "@/lib/validators/school"
 import { CreateSchoolSuccess } from "@/type"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
@@ -21,16 +21,19 @@ import { toast } from "sonner"
 import AdditionalInfoForm from "./additional-info"
 import AddressInfoForm from "./address-info"
 import BasicInfoForm from "./basic-info"
+import { log } from "util"
 
 
 const steps = [
     { id: 1, title: "Basic Info", description: "Enter your basic details", Component: BasicInfoForm, fields: ["logo", "name", "email", "slug"] },
     { id: 2, title: "Address", description: "Provide your address details", Component: AddressInfoForm, fields: ["city", "state", "country", "address", "zipCode"] },
-    { id: 3, title: "Additional", description: "Please provide additional details.", Component: AdditionalInfoForm, fields: ["category", "website", "schoolType", "metadata", "socialLinks"] }
+    { id: 3, title: "Additional", description: "Please provide additional details.", Component: AdditionalInfoForm, fields: ["category", "website", "schoolType", "phone", "socialLinks"] }
 ]
+
 export default function OnboardingContainer() {
-    const router = useRouter()
-    const [currentStep, setCurrentStep] = useState<number>(1)
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const [currentStep, setCurrentStep] = useState<number>(1);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
     const methods = useForm<TonboardingSchema>({
@@ -39,7 +42,7 @@ export default function OnboardingContainer() {
         defaultValues: {
             name: "",
             slug: "",
-            logo: undefined,
+            file: undefined,
             email: "",
             country: "",
             address: "",
@@ -55,20 +58,19 @@ export default function OnboardingContainer() {
                 { type: "twitter", url: "" },
                 { type: "linkedin", url: "" },
             ],
-            metadata: ""
+            phone: ""
         }
-    })
+    });
 
     const { handleSubmit, trigger } = methods
     const CurrentStepComponent = steps[currentStep - 1].Component
 
     const { mutate, isPending, error } = useMutation({
-        mutationFn: async (formData: TonboardingSchema): Promise<CreateSchoolSuccess> => {
-            const res = await fetch("/api/create-school", {
+        mutationFn: async (formData: FormData): Promise<CreateSchoolSuccess> => {
+            const res = await fetch("/api/school/create-school", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify(formData),
+                body: formData,
             });
 
             if (!res.ok) {
@@ -79,63 +81,42 @@ export default function OnboardingContainer() {
             const data: CreateSchoolSuccess = await res.json();
             return data;
         },
-        onSuccess: () => {
-            router.push("/verify-email");
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['schools'] })
+            router.push("/dashboard");
         },
-        // onError: (error: Error) => {
-        //     toast.error(error.message || "Something went wrong");
-        // },
     });
 
     const onSubmit = async (data: TonboardingSchema) => {
-        let publicUrl: string | undefined = undefined;
+        const formData = new FormData();
 
-        const logoFile = data.logo;
-
-        if (logoFile && logoFile instanceof File) {
-            try {
-                setIsUploading(true);
-                const formData = new FormData();
-                formData.append("file", logoFile);
-
-                const res = await fetch("/api/upload/school-logo", {
-                    method: "POST",
-                    body: formData,
-                });
-
-                if (!res.ok) {
-                    toast.error("Image upload failed");
-                    setIsUploading(false);
-                    return;
-                }
-
-                const uploadResult = await res.json();
-                publicUrl = uploadResult.secure_url;
-
-                if (!publicUrl) {
-                    toast.error("Upload succeeded but no URL was returned.");
-                    setIsUploading(false);
-                    return;
-                }
-
-            } catch (error) {
-                console.error("Upload error:", error);
-                toast.error("An error occurred during the image upload.");
-                setIsUploading(false);
-                return;
-            } finally {
-                setIsUploading(false);
-            }
+        // Add the file if it exists (field name must match multer config on backend)
+        if (data.file && data.file instanceof File) {
+            formData.append("file", data.file);
         }
 
-        const { logo, ...otherData } = data;
+        // Add all other form fields
+        formData.append("name", data.name);
+        formData.append("slug", data.slug);
+        formData.append("email", data.email);
+        formData.append("country", data.country);
+        formData.append("address", data.address);
+        formData.append("city", data.city);
+        formData.append("state", data.state);
+        formData.append("zipCode", data.zipCode);
+        formData.append("category", data.category);
+        formData.append("schoolType", data.schoolType);
+        formData.append("phone", data.phone);
 
-        const dataToSave = {
-            ...otherData,
-            logo: publicUrl,
-        };
+        if (data.website) {
+            formData.append("website", data.website);
+        }
 
-        mutate(dataToSave);
+        if (data.socialLinks) {
+            formData.append("socialLinks", JSON.stringify(data.socialLinks));
+        }
+
+        mutate(formData);
     }
 
     const onNext = async () => {

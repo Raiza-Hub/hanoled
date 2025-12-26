@@ -19,13 +19,13 @@ import "react-phone-number-input/style.css"
 import { CountrySelect, FlagComponent, PhoneInput } from "../comp-46"
 
 
-const CATEGORY = [
+export const CATEGORY = [
     { label: "Primary School", value: "primary" },
     { label: "Secondary School", value: "secondary" },
     { label: "Tertiary Institution", value: "tertiary" },
 ] as const
 
-const SCHOOLTYPE = [
+export const SCHOOLTYPE = [
     { label: "Public", value: "public" },
     { label: "Private", value: "private" },
     { label: "Federal", value: "federal" },
@@ -69,7 +69,7 @@ const AdditionalInfoForm = () => {
                     >
                         <SelectTrigger
                             className={cn(
-                                "w-full min-w-[var(--radix-popper-anchor-width)] border rounded-md px-3 py-2",
+                                "w-full min-w-[var(--radix-popper-anchor-width)] border rounded-md px-3 py-2 cursor-pointer",
                                 errors.category
                                     ? "border-red-500 focus-visible:ring-red-500"
                                     : "border-input"
@@ -92,6 +92,7 @@ const AdditionalInfoForm = () => {
                         <p className="text-sm text-red-500">{errors.category.message}</p>
                     )}
                 </div>
+
                 <div className="grid gap-2 py-2">
                     <Label htmlFor="schoolType">School Type</Label>
 
@@ -107,7 +108,7 @@ const AdditionalInfoForm = () => {
                     >
                         <SelectTrigger
                             className={cn(
-                                "w-full min-w-[var(--radix-popper-anchor-width)] border rounded-md px-3 py-2",
+                                "w-full min-w-[var(--radix-popper-anchor-width)] border rounded-md px-3 py-2 cursor-pointer",
                                 errors.schoolType
                                     ? "border-red-500 focus-visible:ring-red-500 shadow-sm shadow-red-200"
                                     : "border-input"
@@ -129,10 +130,11 @@ const AdditionalInfoForm = () => {
                         <p className="text-sm text-red-500">{errors.schoolType.message}</p>
                     )}
                 </div>
+
                 <div className="grid gap-2 py-2">
                     <Label htmlFor="phone number">Phone number</Label>
                     <Controller
-                        name="metadata"
+                        name="phone"
                         control={control}
                         render={({ field }) => (
                             <PhoneNumberInput
@@ -145,13 +147,13 @@ const AdditionalInfoForm = () => {
                                 onChange={(val) => field.onChange(val || "")}
                                 className={cn(
                                     "flex rounded-md shadow-xs",
-                                    errors.metadata && "border-red-500 focus-visible:ring-red-500"
+                                    errors.phone && "border-red-500 focus-visible:ring-red-500"
                                 )}
                             />
                         )}
                     />
-                    {errors.metadata && (
-                        <p className="text-sm text-red-500">{errors.metadata.message}</p>
+                    {errors.phone && (
+                        <p className="text-sm text-red-500">{errors.phone.message}</p>
                     )}
                 </div>
                 <div className="grid gap-2 py-2">
@@ -183,7 +185,7 @@ const AdditionalInfoForm = () => {
                                     <Input
                                         id={`social-${social}`}
                                         {...field}
-                                        placeholder={`Enter ${social} URL`}
+                                        placeholder={`Enter ${social} url`}
                                         className={cn(
                                             "w-full border rounded-md px-2 py-1",
                                             errors.socialLinks?.[i]?.url && "border-red-500 focus-visible:ring-red-500"
