@@ -36,7 +36,7 @@ const LoginForm = () => {
 
     const { mutate, isPending, error } = useMutation({
         mutationFn: async (userData: TSignIn): Promise<SignInResponse> => {
-            const res = await fetch("/api/sign-in", {
+            const res = await fetch("/api/auth/sign-in", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

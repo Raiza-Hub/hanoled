@@ -78,7 +78,7 @@ const SignUpForm = () => {
     // Sign up mutation
     const { mutate, isPending, error } = useMutation({
         mutationFn: async (userData: TSignUp): Promise<SignUpSuccess> => {
-            const res = await fetch("/api/sign-up", {
+            const res = await fetch("/api/auth/sign-up", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
