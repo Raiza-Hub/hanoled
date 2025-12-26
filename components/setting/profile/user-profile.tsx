@@ -56,7 +56,18 @@ const UserProfile = () => {
     const fileName = files[0]?.file.name || null;
 
     const onSubmit = async (data: TUpdateAccount) => {
-        mutate(data)
+        const formData = new FormData();
+        
+        // Add the file if it exists
+        if (files[0]?.file instanceof File) {
+            formData.append("file", files[0].file);
+        }
+        
+        // Add other form fields
+        formData.append("name", data.name);
+        formData.append("email", data.email);
+        
+        mutate(formData as any);
     };
 
     if (isLoading) return <UserProfileLoading />;
