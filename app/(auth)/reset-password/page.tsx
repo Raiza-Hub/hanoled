@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { CheckIcon, EyeIcon, EyeOffIcon, Loader2, RectangleEllipsis, XIcon } from "lucide-react"
 
 
-import { useForgetPasswordEmail } from "@/app/stores/forget-password-store"
+import { useclearForgetPasswordEmailActions, useForgetPasswordEmail } from "@/app/stores/forget-password-store"
 import { Slot } from "@/components/slot"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +25,7 @@ const ResetPasswordPage = () => {
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const forgetPasswordEmail = useForgetPasswordEmail();
+    const clearForgetPasswordEmail = useclearForgetPasswordEmailActions();
 
     const {
         register,
@@ -84,7 +85,7 @@ const ResetPasswordPage = () => {
 
     const { mutate, isPending, error, reset } = useMutation({
         mutationFn: async (userData: TresetPassword): Promise<ForgotPassword> => {
-            const res = await fetch("/api/reset-password", {
+            const res = await fetch("/api/auth/reset-password", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -100,6 +101,7 @@ const ResetPasswordPage = () => {
             return data;
         },
         onSuccess: () => {
+            clearForgetPasswordEmail();
             router.replace("/sign-in");
         },
     });

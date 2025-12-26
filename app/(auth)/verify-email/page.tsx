@@ -21,7 +21,7 @@ const VerifyEmailPage = () => {
 
     const { mutate, isPending, error, reset } = useMutation({
         mutationFn: async (otp: string): Promise<OtpResponse> => {
-            const res = await fetch("/api/verify-email", {
+            const res = await fetch("/api/auth/verify-email", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
