@@ -18,7 +18,7 @@ import UserProfileLoading from "./user-profile-loading";
 
 const UserProfile = () => {
     // const [supportAccess, setSupportAccess] = useState(false);
-    const { mutate, isPending } = useSubmitHandler<TUpdateAccount>({
+    const { mutate, isPending } = useSubmitHandler<FormData>({
         url: "/api/auth/update-profile",
         queryKeyValue: "user-profile",
 
@@ -57,17 +57,21 @@ const UserProfile = () => {
 
     const onSubmit = async (data: TUpdateAccount) => {
         const formData = new FormData();
-        
-        // Add the file if it exists
+
+        // Add the file if it exists (field name must match multer config on backend)
         if (files[0]?.file instanceof File) {
             formData.append("file", files[0].file);
         }
-        
+
         // Add other form fields
-        formData.append("name", data.name);
-        formData.append("email", data.email);
-        
-        mutate(formData as any);
+        if (data.name) {
+            formData.append("name", data.name);
+        }
+        if (data.email) {
+            formData.append("email", data.email);
+        }
+
+        mutate(formData);
     };
 
     if (isLoading) return <UserProfileLoading />;
@@ -165,7 +169,7 @@ const UserProfile = () => {
                     )}
                 </div>
 
-{/* 
+                {/* 
                 <div className="w-full flex items-center">
                     <div className="max-w-xl space-y-1">
                         <div id="switch" className="font-medium">
