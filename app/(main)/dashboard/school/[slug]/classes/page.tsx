@@ -1,83 +1,31 @@
+import CreateClassDialog from "@/components/class/class-dialog";
+import ClassLists from "@/components/class/class-lists";
+import CreateClassForm from "@/components/school/resources/create-class";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisIcon, FileSpreadsheet, FolderPen, Plus, Trash } from "lucide-react";
 
-const ClassesPage = () => {
+const ClassesPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+    const { slug } = await params;
     return (
-        <div className="max-w-7xl mx-auto flex flex-col">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-2xl font-semibold">Classes</h1>
-                    <p className="text-zinc-600 text-[15px]">Configure times when you are available for bookings.</p>
-                </div>
-                <div>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button
-                                size="sm">
-                                <Plus className="mr-2 h-4 w-4" />
-                                new class
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader></DialogHeader>
-                        </DialogContent>
-                    </Dialog>
+        <div className="w-full max-w-7xl mx-auto flex flex-col px-6">
+            <div className="flex items-center justify-between mb-4 py-4">
+                <div className="space-y-0.5">
+                    <h1 className="text-2xl font-bold">Class Management</h1>
+                    <p className="text-zinc-600 text-[15px]">Organize and monitor all your classes in one place.</p>
                 </div>
             </div>
-            <div className="w-full rounded-sm border bg-white p-4 flex items-center justify-between hover:bg-zinc-50">
-                <div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <h2 className="text-base font-medium text-gray-900">SS1 White</h2>
-                        <span className="text-xs bg-zinc-200 text-black px-2 py-1 rounded-sm">
-                            Adebola wisdom
-                        </span>
-                    </div>
 
-                    <div className="text-zinc-600 text-sm mb-1.5">
-                        <div className="flex">
-                            <p className='text-muted-foreground'>
-                                {"Class limit"}
-                            </p>
+            <CreateClassDialog slug={slug} />
 
-                            <div className="ml-2 border-l text-muted-foreground border-zinc-300 pl-2">
-                                {"10"}
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="flex items-center gap-1 text-zinc-500 text-sm">
-                        <FileSpreadsheet className="h-4 w-4" />
-                        <span>18 spreadsheet</span>
-                    </div>
-                </div>
-
-                <div className="bg-white not-hover:shadow-xs border rounded-md">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                className="rounded-sm shadow-none "
-                                aria-label="Open edit menu"
-                            >
-                                <EllipsisIcon className="h-4 w-4" aria-hidden="true" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="-translate-x-10">
-                            <DropdownMenuItem>
-                                <FolderPen className="h-4 w-4" />
-                                Rename
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 hover:text-red-600/80 focus:text-red-600/80">
-                                <Trash className="h-4 w-4 text-red-600 hover:text-red-600/80 focus:text-red-600/80" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-              </div>
+            <div className="flex justify-between items-center mb-8">
+                <h2 className="text-lg font-semibold">All classes</h2>
             </div>
+
+
+            <ClassLists slug={slug} />
         </div>
     );
 }
