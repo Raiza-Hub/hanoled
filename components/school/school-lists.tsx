@@ -1,17 +1,77 @@
-// ✅ Change prop typing
-import { useCurrentSchoolActions } from "@/app/stores/school-store";
-import { SchoolMessage } from "@/type";
-import { useRouter } from "next/navigation";
-import { Card } from "../ui/card";
-import { ChevronRight } from "lucide-react";
+"use client"
 
-export default function SchoolsLists({ schools }: { schools: SchoolMessage[] }) {
-    const { setCurrentSchool } = useCurrentSchoolActions();
+import { useCurrentSchoolActions } from "@/app/stores/school-store";
+import { School } from "@/type";
+import { IconBuildings, IconChevronRight } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
+import { EmptyState } from "../empty-state";
+import { NoResultsFound } from "../no-result";
+import { Badge } from "../ui/badge";
+import { Card } from "../ui/card";
+import SchoolsSkeleton from "./school-skeleton";
+import { ErrorState } from "../error-state";
+import useDebounce from "@/hooks/use-debounce";
+
+export default function SchoolsLists() {
+    const setCurrentSchool = useCurrentSchoolActions();
     const router = useRouter();
+    const searchParams = useSearchParams()
+    const search = searchParams.get('search')
+
+    const debouncedSearchQuery = useDebounce(search, 500);
+
+
+
+    const { data: schools, isLoading, isError, error } = useQuery({
+        queryKey: ['schools', debouncedSearchQuery],
+        queryFn: async (): Promise<School> => {
+            const res = await fetch("/api/school/all-schools", {
+                method: "GET",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message);
+            }
+            return res.json();
+        },
+    })
+
+    if (isLoading) {
+        return <SchoolsSkeleton />;
+    }
+
+    if (isError) {
+        return (
+            <ErrorState
+                title="We couldn't load schools"
+                message={error?.message ?? 'Please try again later.'}
+            />
+        );
+    }
+
+    if (schools?.message.length === 0) {
+
+        if (search?.trim()) {
+            return <NoResultsFound searchQuery={search} />;
+        }
+
+        return (
+            <EmptyState
+                icon={<IconBuildings className="text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg" />}
+                title="No Schools Yet"
+                description="You haven&apos;t created any schools yet. Get started by creating your first school."
+            />
+        );
+    }
+
+    console.log(schools);
+
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {schools.map((school) => (
+            {schools?.message.map((school) => (
                 <Card
                     key={school.id}
                     onClick={() => {
@@ -33,8 +93,12 @@ export default function SchoolsLists({ schools }: { schools: SchoolMessage[] }) 
                                     year: "numeric",
                                 })}
                             </p>
+
+                            <Badge variant="outline" className="px-2 py-1 rounded-sm">
+                                {school.country}
+                            </Badge>
                         </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        <IconChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     </div>
                 </Card>
             ))}
