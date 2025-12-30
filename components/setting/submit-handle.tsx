@@ -3,28 +3,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CustomToast } from "../custom-toast";
 
-interface UseSubmitHandlerProps<T> {
+interface UseSubmitHandlerProps {
     url: string;
     queryKeyValue: string
     slug?: string
 }
 
-export const useSubmitHandler = <T extends Record<string, any>>({
+export const useSubmitHandler = <T extends Record<string, unknown> | FormData>({
     url,
     queryKeyValue,
     slug
-}: UseSubmitHandlerProps<T>) => {
+}: UseSubmitHandlerProps) => {
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (data: T) => {
+            const isFormData = data instanceof FormData;
+
             const res = await fetch(url, {
                 method: "PATCH",
                 credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
+                // Don't set Content-Type for FormData - browser sets it with boundary
+                ...(isFormData ? {} : {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }),
+                body: isFormData ? data : JSON.stringify(data),
             });
 
             if (!res.ok) {
