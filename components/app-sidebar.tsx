@@ -65,141 +65,35 @@ import {
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
 import LoadingSidebar from "./sidebar-loading";
 import { TeamSwitcher } from "./team-switcher";
 import { SidebarUser } from "./user-profile";
 
 
-interface SidebarBaseItem {
-    id: string;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    badge?: string;
-    allowed?: string[]
-}
+import { type SidebarItem, type SidebarParentItem, sidebarItems } from "@/lib/sidebar-config";
 
-interface SidebarParentItem extends SidebarBaseItem {
-    hasSubItems: true;
-    subItems: {
-        id: string;
-        label: string;
-        icon: React.ComponentType<{ className?: string }>;
-        route: string;
-        allowed?: string[];
-    }[];
-}
-
-interface SidebarLeafItem extends SidebarBaseItem {
-    hasSubItems?: false;
-    route: string;
-}
-
-export type SidebarItem = SidebarParentItem | SidebarLeafItem;
-
-
-const sidebarItems: SidebarItem[] = [
-    {
-        id: "overview",
-        label: "Overview",
-        icon: IconHome,
-        hasSubItems: false,
-        route: "/",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "staff-directory",
-        label: "Staff Directory",
-        icon: IconUsers,
-        hasSubItems: false,
-        route: "/teachers",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "parent",
-        label: "Parents Directory",
-        icon: IconUserScan,
-        hasSubItems: false,
-        route: "/parents",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "student",
-        label: "Student Records",
-        icon: IconSchool,
-        hasSubItems: false,
-        route: "/students",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "class",
-        label: "Class Management",
-        icon: IconCategoryPlus,
-        hasSubItems: false,
-        route: "/classes",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "subject",
-        label: "Subject Management",
-        icon: IconFiles,
-        hasSubItems: false,
-        route: "/subjects",
-        allowed: ["owner", "admin", "member"],
-    },
-    {
-        id: "report",
-        label: "Performance Reports",
-        icon: IconChartBar,
-        hasSubItems: false,
-        route: "/reports",
-        allowed: ["owner", "admin", "member", "parent"],
-    },
-    {
-        id: "settings",
-        label: "Settings",
-        icon: IconSettings,
-        hasSubItems: true,
-        allowed: ["owner", "admin", "member", "parent"],
-        subItems: [
-            {
-                id: "profile",
-                label: "Profile",
-                icon: IconUser,
-                route: "/settings/profile",
-                allowed: ["owner", "admin", "member", "parent"],
-            },
-            {
-                id: "school",
-                label: "Schools",
-                icon: IconBuildings,
-                route: "/settings/schools",
-                allowed: ["owner", "admin"],
-            },
-            {
-                id: "notifications",
-                label: "Notifications",
-                icon: IconBellRinging,
-                route: "/settings/notifications",
-                allowed: ["owner", "admin", "member", "parent"],
-            },
-            {
-                id: "billing",
-                label: "Billing",
-                icon: IconCreditCard,
-                route: "/settings/webhooks",
-                allowed: ["owner", "admin"],
-            },
-        ],
-    },
-];
 
 export function AppSidebar({ slug }: { slug: string }) {
     const router = useRouter();
-    const [activeItem, setActiveItem] = useState<string | null>(null);
-    const [selectedSubItem, setSelectedSubItem] = useState<string | null>(null);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // DERIVED STATE
+    const activeItem = searchParams.get("menu");
+
+    // Derive current sub-item from pathname
+    let selectedSubItem: string | null = null;
+    for (const item of sidebarItems) {
+        if (item.hasSubItems) {
+            const subItem = item.subItems.find(sub => pathname.endsWith(sub.route));
+            if (subItem) {
+                selectedSubItem = subItem.id;
+                break;
+            }
+        }
+    }
 
     const { data: school, isLoading, error } = useQuery<UniqueSchool, Error>({
         queryKey: ["get-school", slug],
@@ -221,8 +115,9 @@ export function AppSidebar({ slug }: { slug: string }) {
     }
 
 
-    if (!school?.success) {
+    if (!school || !school.success) {
         redirect("/sign-in");
+        return null;
     }
 
     const userRoles = school.role || []
@@ -241,25 +136,27 @@ export function AppSidebar({ slug }: { slug: string }) {
 
     const handleItemClick = (item: SidebarItem) => {
         if (item.hasSubItems) {
-            setActiveItem(item.id);
-            setSelectedSubItem(null);
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("menu", item.id);
+            router.push(`${pathname}?${params.toString()}`);
         } else {
-            console.log(`[v0] Navigating to: ${item.route}`);
             router.push(`/dashboard/school/${slug}/${item.route}`);
         }
     };
 
     const handleSubItemClick = (subItem: { id: string; route?: string }) => {
-        setSelectedSubItem(selectedSubItem === subItem.id ? null : subItem.id);
         if (subItem.route) {
-            console.log(`[v0] Navigating to: ${subItem.route}`);
-            router.push(`/dashboard/school/${slug}/${subItem.route}`);
+            const params = new URLSearchParams(searchParams.toString());
+            const route = `/dashboard/school/${slug}/${subItem.route}`;
+            router.push(`${route}?${params.toString()}`);
         }
     };
 
     const handleBackToMain = () => {
-        setActiveItem(null);
-        setSelectedSubItem(null);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("menu");
+        const query = params.toString() ? `?${params.toString()}` : "";
+        router.push(`${pathname}${query}`);
     };
 
 

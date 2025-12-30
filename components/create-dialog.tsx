@@ -26,7 +26,7 @@ export function CreateDialog({
 }: CreateDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="flex flex-col sm:max-h-[min(640px,80vh)] sm:max-w-lg [&>button:last-child]:top-3.5">
+            <DialogContent className="flex flex-col sm:max-h-[min(640px,80vh)] sm:max-w-md [&>button:last-child]:top-3.5">
                 <DialogHeader className="p-2">
                     <DialogTitle>{title}</DialogTitle>
                     {description && (

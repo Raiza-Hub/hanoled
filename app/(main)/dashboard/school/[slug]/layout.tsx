@@ -9,6 +9,8 @@ interface LayoutProps {
 }
 
 
+import MobileNav from "@/components/mobile-nav";
+
 const Layout = async ({ children, params }: LayoutProps) => {
     const { slug } = await params;
 
@@ -19,7 +21,11 @@ const Layout = async ({ children, params }: LayoutProps) => {
                     <AppSidebar slug={slug} />
                 </div>
 
-                <main className="flex-1 flex flex-col overflow-y-auto">
+                <div className="lg:hidden">
+                    <MobileNav slug={slug} />
+                </div>
+
+                <main className="flex-1 flex flex-col overflow-y-auto mb-16 lg:mb-0">
                     {children}
                 </main>
             </div>
